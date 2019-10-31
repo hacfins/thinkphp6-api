@@ -1,2 +1,2 @@
-# thinkphp5-api
-thinkphp5 api framework
+### thinkphp6-api
+thinkphp6 api framework
