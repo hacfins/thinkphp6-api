@@ -10,6 +10,7 @@ return array(
     'think\\trace\\' => array($vendorDir . '/topthink/think-trace/src'),
     'think\\migration\\' => array($vendorDir . '/topthink/think-migration/src'),
     'think\\captcha\\' => array($vendorDir . '/topthink/think-captcha/src'),
+    'think\\app\\' => array($vendorDir . '/topthink/think-multi-app/src'),
     'think\\' => array($vendorDir . '/topthink/framework/src/think', $vendorDir . '/topthink/think-factory/src', $vendorDir . '/topthink/think-helper/src', $vendorDir . '/topthink/think-image/src', $vendorDir . '/topthink/think-orm/src', $vendorDir . '/topthink/think-queue/src'),
     'app\\' => array($baseDir . '/app'),
     'Workerman\\' => array($vendorDir . '/workerman/workerman'),

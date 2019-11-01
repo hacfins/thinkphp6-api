@@ -23,6 +23,7 @@ class ComposerStaticInit69736ddebb94234f317f1e760ee2a724
             'think\\trace\\' => 12,
             'think\\migration\\' => 16,
             'think\\captcha\\' => 14,
+            'think\\app\\' => 10,
             'think\\' => 6,
         ),
         'a' => 
@@ -85,6 +86,10 @@ class ComposerStaticInit69736ddebb94234f317f1e760ee2a724
         'think\\captcha\\' => 
         array (
             0 => __DIR__ . '/..' . '/topthink/think-captcha/src',
+        ),
+        'think\\app\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/topthink/think-multi-app/src',
         ),
         'think\\' => 
         array (
@@ -539,6 +544,10 @@ class ComposerStaticInit69736ddebb94234f317f1e760ee2a724
         'think\\Session' => __DIR__ . '/..' . '/topthink/framework/src/think/Session.php',
         'think\\Validate' => __DIR__ . '/..' . '/topthink/framework/src/think/Validate.php',
         'think\\View' => __DIR__ . '/..' . '/topthink/framework/src/think/View.php',
+        'think\\app\\MultiApp' => __DIR__ . '/..' . '/topthink/think-multi-app/src/MultiApp.php',
+        'think\\app\\Service' => __DIR__ . '/..' . '/topthink/think-multi-app/src/Service.php',
+        'think\\app\\Url' => __DIR__ . '/..' . '/topthink/think-multi-app/src/Url.php',
+        'think\\app\\command\\Build' => __DIR__ . '/..' . '/topthink/think-multi-app/src/command/Build.php',
         'think\\cache\\Driver' => __DIR__ . '/..' . '/topthink/framework/src/think/cache/Driver.php',
         'think\\cache\\TagSet' => __DIR__ . '/..' . '/topthink/framework/src/think/cache/TagSet.php',
         'think\\cache\\driver\\File' => __DIR__ . '/..' . '/topthink/framework/src/think/cache/driver/File.php',
