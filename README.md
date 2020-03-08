@@ -4,7 +4,7 @@
 
 ## 1. 简介
 
-thinkphp6-api 可用于后台单应用及多应用的 API 接口开发，它基于 [thinkphp6](https://github.com/top-think/think)实现。它使用了最新的后台技术栈，相信不管你的需求是什么，本项目都能帮助到你。
+thinkphp6-api 可用于后台单应用及多应用的 API 接口开发，它基于 [thinkphp6](https://github.com/top-think/think) 实现。它使用了最新的后台技术栈，相信不管你的需求是什么，本项目都能帮助到你。
 
 ## 2. 功能
 

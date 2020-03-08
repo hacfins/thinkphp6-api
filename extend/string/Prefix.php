@@ -3,8 +3,8 @@
 namespace string;
 
 /**
- * ID前缀格式化类
- * Func
+ * ID 前缀格式化类
+ *
  * public getPrefixId    生成已加前缀的id
  * public getId          还原为id
  * public getPrefixType  根据已加前缀id获取前缀类型
@@ -71,7 +71,6 @@ class Prefix
      */
     public static function getPrefixType($prefix_id)
     {
-
         // 获取id前缀
         preg_match('/[A-Za-z]+/', $prefix_id, $arr);
 

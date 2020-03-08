@@ -1,7 +1,6 @@
 <?php
 
 /**
- * Class Webscan
  * 360Webscan.php 简单封装
  */
 class Webscan

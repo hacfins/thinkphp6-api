@@ -3,8 +3,6 @@
 /**
  * ZipArchiveImproved extends ZipArchive to add some information about the zip file and some functionality.
  *
- *
- *
  * @author Farzad Ghanei
  * @uses ZipArchive
  * @version 1.0.0 2009-01-18

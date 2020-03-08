@@ -1,9 +1,7 @@
 <?php
+
 /**
- * Created by PhpStorm.
- * User: hk
- * Date: 2016/3/22
- * Time: 14:39
+ * Php Crypt function
  */
 class PhpCrypt
 {

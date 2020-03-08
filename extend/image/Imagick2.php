@@ -1,6 +1,11 @@
 <?php
 namespace image;
 
+/**
+ * Imagick 封装
+ *
+ * @package image
+ */
 class Imagick2
 {
     /* 驱动相关常量定义 */

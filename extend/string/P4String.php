@@ -1,6 +1,9 @@
 <?php
 namespace string;
 
+/*
+ * string functions
+ */
 class P4String
 {
 	public static function addFirstSlash($path)
