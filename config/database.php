@@ -1,9 +1,10 @@
 <?php
-use think\facade\Env;
+
+$dbOptions = yaconf('mysql');
 
 return [
     // 默认使用的数据库连接配置
-    'default'         => Env::get('database.driver', 'mysql'),
+    'default'         => 'mysql',
 
     // 自定义时间查询规则
     'time_query_rule' => [],
@@ -11,32 +12,34 @@ return [
     // 自动写入时间戳字段
     // true为自动识别类型 false关闭
     // 字符串则明确指定时间字段类型 支持 int timestamp datetime date
-    'auto_timestamp'  => true,
+    'auto_timestamp'  => false,
 
     // 时间字段取出后的默认时间格式
-    'datetime_format' => 'Y-m-d H:i:s',
+    'datetime_format' => false,
 
     // 数据库连接配置信息
     'connections'     => [
         'mysql' => [
             // 数据库类型
-            'type'              => Env::get('database.type', 'mysql'),
+            'type'              => $dbOptions['type'],
             // 服务器地址
-            'hostname'          => Env::get('database.hostname', '127.0.0.1'),
+            'hostname'          => $dbOptions['hostname'],
             // 数据库名
-            'database'          => Env::get('database.database', ''),
+            'database'          => $dbOptions['database'],
             // 用户名
-            'username'          => Env::get('database.username', 'root'),
+            'username'          => $dbOptions['username'],
             // 密码
-            'password'          => Env::get('database.password', ''),
+            'password'          => $dbOptions['password'],
             // 端口
-            'hostport'          => Env::get('database.hostport', '3306'),
-            // 数据库连接参数
-            'params'            => [],
+            'hostport'          => $dbOptions['hostport'],
+            // [1]数据库连接参数
+            'params'            => [
+                \PDO::ATTR_PERSISTENT => false,
+            ],
             // 数据库编码默认采用utf8
-            'charset'           => Env::get('database.charset', 'utf8'),
+            'charset'           => $dbOptions['charset'],
             // 数据库表前缀
-            'prefix'            => Env::get('database.prefix', ''),
+            'prefix'            => $dbOptions['prefix'],
 
             // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
             'deploy'            => 0,
@@ -48,8 +51,9 @@ return [
             'slave_no'          => '',
             // 是否严格检查字段是否存在
             'fields_strict'     => true,
-            // 是否需要断线重连
-            'break_reconnect'   => false,
+            // [2]是否需要断线重连
+            // 如果你使用的是长连接或者命令行，在超出一定时间后，数据库连接会断开，这个时候你需要开启断线重连才能确保应用不中断。
+            'break_reconnect'   => true,
             // 监听SQL
             'trigger_sql'       => true,
             // 开启字段缓存

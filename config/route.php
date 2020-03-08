@@ -23,7 +23,7 @@ return [
     // 空控制器名
     'empty_controller'      => 'Error',
     // 是否使用控制器后缀
-    'controller_suffix'     => false,
+    'controller_suffix'     => true,
     // 默认的路由变量规则
     'default_route_pattern' => '[\w\.]+',
     // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
@@ -33,13 +33,13 @@ return [
     // 全局请求缓存排除规则
     'request_cache_except'  => [],
     // 默认控制器名
-    'default_controller'    => 'Index',
+    'default_controller'    => 'Base',
     // 默认操作名
-    'default_action'        => 'index',
+    'default_action'        => 'home_index',
     // 操作方法后缀
     'action_suffix'         => '',
     // 默认JSONP格式返回的处理方法
     'default_jsonp_handler' => 'jsonpReturn',
     // 默认JSONP处理方法
-    'var_jsonp_handler'     => 'callback',
+    'var_jsonp_handler'     => 'callback'
 ];
