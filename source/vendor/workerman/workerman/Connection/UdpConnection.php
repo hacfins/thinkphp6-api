@@ -65,7 +65,7 @@ class UdpConnection extends ConnectionInterface
             $parser      = $this->protocol;
             $send_buffer = $parser::encode($send_buffer, $this);
             if ($send_buffer === '') {
-                return null;
+                return;
             }
         }
         return \strlen($send_buffer) === \stream_socket_sendto($this->_socket, $send_buffer, 0, $this->_remoteAddress);
@@ -151,7 +151,7 @@ class UdpConnection extends ConnectionInterface
     /**
      * Is ipv4.
      *
-     * return bool.
+     * @return bool.
      */
     public function isIpV4()
     {
@@ -164,7 +164,7 @@ class UdpConnection extends ConnectionInterface
     /**
      * Is ipv6.
      *
-     * return bool.
+     * @return bool.
      */
     public function isIpV6()
     {

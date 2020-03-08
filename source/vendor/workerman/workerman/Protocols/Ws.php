@@ -16,6 +16,7 @@ namespace Workerman\Protocols;
 use Workerman\Worker;
 use Workerman\Lib\Timer;
 use Workerman\Connection\TcpConnection;
+use Workerman\Connection\ConnectionInterface;
 
 /**
  * Websocket protocol for client.
@@ -43,10 +44,10 @@ class Ws
      * @param ConnectionInterface $connection
      * @return int
      */
-    public static function input($buffer, $connection)
+    public static function input($buffer, ConnectionInterface $connection)
     {
         if (empty($connection->handshakeStep)) {
-            Worker::safeEcho("recv data before handshake. Buffer:" . bin2hex($buffer) . "\n");
+            Worker::safeEcho("recv data before handshake. Buffer:" . \bin2hex($buffer) . "\n");
             return false;
         }
         // Recv handshake response
@@ -227,7 +228,7 @@ class Ws
      * @param ConnectionInterface $connection
      * @return string
      */
-    public static function encode($payload, $connection)
+    public static function encode($payload, ConnectionInterface $connection)
     {
         if (empty($connection->websocketType)) {
             $connection->websocketType = self::BINARY_TYPE_BLOB;
@@ -261,7 +262,7 @@ class Ws
             if (\strlen($connection->tmpWebsocketData) > $connection->maxSendBufferSize) {
                 if ($connection->onError) {
                     try {
-                        \call_user_func($connection->onError, $connection, WORKERMAN_SEND_FAIL, 'send buffer full and drop package');
+                        \call_user_func($connection->onError, $connection, \WORKERMAN_SEND_FAIL, 'send buffer full and drop package');
                     } catch (\Exception $e) {
                         Worker::log($e);
                         exit(250);
@@ -299,7 +300,7 @@ class Ws
      * @param ConnectionInterface $connection
      * @return string
      */
-    public static function decode($bytes, $connection)
+    public static function decode($bytes, ConnectionInterface $connection)
     {
         $data_length = \ord($bytes[1]);
 
@@ -352,10 +353,10 @@ class Ws
     /**
      * Send websocket handshake.
      *
-     * @param \Workerman\Connection\TcpConnection $connection
+     * @param TcpConnection $connection
      * @return void
      */
-    public static function sendHandshake($connection)
+    public static function sendHandshake(TcpConnection $connection)
     {
         if (!empty($connection->handshakeStep)) {
             return;
@@ -364,7 +365,7 @@ class Ws
         $port = $connection->getRemotePort();
         $host = $port === 80 ? $connection->getRemoteHost() : $connection->getRemoteHost() . ':' . $port;
         // Handshake header.
-        $connection->websocketSecKey = \base64_encode(md5(\mt_rand(), true));
+        $connection->websocketSecKey = \base64_encode(\md5(\mt_rand(), true));
         $user_header = isset($connection->headers) ? $connection->headers :
             (isset($connection->wsHttpHeader) ? $connection->wsHttpHeader : null);
         $user_header_str = '';
@@ -397,16 +398,16 @@ class Ws
      * Websocket handshake.
      *
      * @param string                              $buffer
-     * @param \Workerman\Connection\TcpConnection $connection
+     * @param TcpConnection $connection
      * @return int
      */
-    public static function dealHandshake($buffer, $connection)
+    public static function dealHandshake($buffer, TcpConnection $connection)
     {
         $pos = \strpos($buffer, "\r\n\r\n");
         if ($pos) {
             //checking Sec-WebSocket-Accept
             if (\preg_match("/Sec-WebSocket-Accept: *(.*?)\r\n/i", $buffer, $match)) {
-                if ($match[1] !== \base64_encode(sha1($connection->websocketSecKey . "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", true))) {
+                if ($match[1] !== \base64_encode(\sha1($connection->websocketSecKey . "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", true))) {
                     Worker::safeEcho("Sec-WebSocket-Accept not match. Header:\n" . \substr($buffer, 0, $pos) . "\n");
                     $connection->close();
                     return 0;
@@ -465,7 +466,7 @@ class Ws
     }
 
     public static function WSGetServerProtocol($connection) {
-	return (\property_exists($connection, 'WSServerProtocol')?$connection->WSServerProtocol:null);
+	return (\property_exists($connection, 'WSServerProtocol') ? $connection->WSServerProtocol : null);
     }
 
 }

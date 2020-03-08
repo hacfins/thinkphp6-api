@@ -1,11 +1,12 @@
 {
-    "name": "topthink/think",
-    "description": "the new thinkphp framework",
+    "name": "topthink/think-api",
+    "description": "the new thinkphp framework api",
     "type": "project",
     "keywords": [
         "framework",
         "thinkphp",
-        "ORM"
+        "ORM",
+        "api"
     ],
     "homepage": "http://thinkphp.cn/",
     "license": "Apache-2.0",
@@ -25,7 +26,17 @@
         "topthink/think-image": "^1.0",
         "topthink/think-worker": "^3.0",
         "topthink/think-helper": "^3.0",
-        "topthink/think-multi-app": "^1.0"       
+        "topthink/think-multi-app": "^1.0",
+        "topthink/think-view": "^1.0",
+
+        "sinergi/browser-detector": "~6.1",
+        "nesbot/carbon": "~2.16",
+        "swiftmailer/swiftmailer": "^6.2",
+        "phpoffice/phpspreadsheet": "~1.9",
+        "php-ffmpeg/php-ffmpeg": "~0.1",
+        "captioning/captioning": "~2.5",
+        "zoujingli/wechat-php-sdk": "~1.3",
+        "php-curl-class/php-curl-class": "^8.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.2",

@@ -13,6 +13,7 @@
 namespace Workerman\Events;
 
 use Workerman\Worker;
+use \EvWatcher;
 
 /**
  * ev eventloop
@@ -72,7 +73,7 @@ class Ev implements EventInterface
                 return true;
             case self::EV_TIMER:
             case self::EV_TIMER_ONCE:
-                $repeat                             = $flag == self::EV_TIMER_ONCE ? 0 : $fd;
+                $repeat                             = $flag === self::EV_TIMER_ONCE ? 0 : $fd;
                 $param                              = array($func, (array)$args, $flag, $fd, self::$_timerId);
                 $event                              = new \EvTimer($fd, $repeat, array($this, 'timerCallback'), $param);
                 $this->_eventTimer[self::$_timerId] = $event;
@@ -126,9 +127,9 @@ class Ev implements EventInterface
     /**
      * Timer callback.
      *
-     * @param \EvWatcher $event
+     * @param EvWatcher $event
      */
-    public function timerCallback($event)
+    public function timerCallback(EvWatcher $event)
     {
         $param    = $event->data;
         $timer_id = $param[4];

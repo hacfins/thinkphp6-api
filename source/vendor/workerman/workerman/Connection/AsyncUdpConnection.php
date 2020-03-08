@@ -15,7 +15,7 @@ namespace Workerman\Connection;
 
 use Workerman\Events\EventInterface;
 use Workerman\Worker;
-use Exception;
+use \Exception;
 
 /**
  * AsyncTcpConnection.
@@ -25,14 +25,14 @@ class AsyncUdpConnection extends UdpConnection
     /**
      * Emitted when socket connection is successfully established.
      *
-     * @var callback
+     * @var callable
      */
     public $onConnect = null;
 
     /**
      * Emitted when socket connection closed.
      *
-     * @var callback
+     * @var callable
      */
     public $onClose = null;
 
@@ -94,7 +94,7 @@ class AsyncUdpConnection extends UdpConnection
                 $parser      = $this->protocol;
                 $recv_buffer = $parser::decode($recv_buffer, $this);
             }
-            ConnectionInterface::$statistics['total_request']++;
+            ++ConnectionInterface::$statistics['total_request'];
             try {
                 \call_user_func($this->onMessage, $this, $recv_buffer);
             } catch (\Exception $e) {
@@ -121,7 +121,7 @@ class AsyncUdpConnection extends UdpConnection
             $parser      = $this->protocol;
             $send_buffer = $parser::encode($send_buffer, $this);
             if ($send_buffer === '') {
-                return null;
+                return;
             }
         }
         if ($this->connected === false) {
@@ -176,7 +176,7 @@ class AsyncUdpConnection extends UdpConnection
         if ($this->_contextOption) {
             $context = \stream_context_create($this->_contextOption);
             $this->_socket = \stream_socket_client("udp://{$this->_remoteAddress}", $errno, $errmsg,
-                30, STREAM_CLIENT_CONNECT, $context);
+                30, \STREAM_CLIENT_CONNECT, $context);
         } else {
             $this->_socket = \stream_socket_client("udp://{$this->_remoteAddress}", $errno, $errmsg);
         }
