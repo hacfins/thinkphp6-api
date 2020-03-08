@@ -1,0 +1,31 @@
+#[1]rewrite - 重写URL
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks -Multiviews
+  RewriteEngine On
+
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
+</IfModule>
+
+#index - 默认入口页面
+DirectoryIndex index.php
+
+#[3]缓存
+#1.0 Etag - 多服务器须禁用Etag[配合Last-Modified]
+FileETag none
+
+#[4]在服务器设置字符集
+<FilesMatch "\.(htm|html)$">
+    ForceType 'text/html; charset=UTF-8'
+</FilesMatch>
+
+#[6]安全相关
+#屏蔽浏览网站目录列表
+Options All -Indexes
+
+#防止网页被Frame
+#DENY：浏览器拒绝当前页面加载任何Frame页面
+#SAMEORIGIN：frame页面的地址只能为同源域名下的页面
+#ALLOW-FROM：origin为允许frame加载的页面地址
+#Header always append X-Frame-Options SAMEORIGIN
