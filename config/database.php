@@ -21,25 +21,25 @@ return [
     'connections'     => [
         'mysql' => [
             // 数据库类型
-            'type'              => $dbOptions['type'],
+            'type'              => yaconf('mysql.type'),
             // 服务器地址
-            'hostname'          => $dbOptions['hostname'],
+            'hostname'          => yaconf('mysql.hostname'),
             // 数据库名
-            'database'          => $dbOptions['database'],
+            'database'          => yaconf('mysql.database'),
             // 用户名
-            'username'          => $dbOptions['username'],
+            'username'          => yaconf('mysql.username'),
             // 密码
-            'password'          => $dbOptions['password'],
+            'password'          => yaconf('mysql.password'),
             // 端口
-            'hostport'          => $dbOptions['hostport'],
+            'hostport'          => yaconf('mysql.hostport'),
             // [1]数据库连接参数
             'params'            => [
                 \PDO::ATTR_PERSISTENT => false,
             ],
             // 数据库编码默认采用utf8
-            'charset'           => $dbOptions['charset'],
+            'charset'           => yaconf('mysql.charset'),
             // 数据库表前缀
-            'prefix'            => $dbOptions['prefix'],
+            'prefix'            => yaconf('mysql.prefix'),
 
             // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
             'deploy'            => 0,

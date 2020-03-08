@@ -2,7 +2,11 @@
 // +----------------------------------------------------------------------
 // | 自定义配置
 // +----------------------------------------------------------------------
-use think\facade\Env;
+
+$GLOBALS['g_env'] = new \think\Env();
+if (is_file(ROOT_PATH . '.env')) {
+    $GLOBALS['g_env']->load(ROOT_PATH . '.env');
+}
 
 //-分离的配置文件
 function yaconf($name, $default = null)
@@ -24,7 +28,8 @@ function yaconf($name, $default = null)
 //    // get from a convention file
 //    return \Yaconf::get('convention.' . $name);
 
-    return Env::get($name, $default);
+    global $g_env;
+    return $g_env->get($name, $default);
 }
 
 // +--------------------------------------------------------------------------

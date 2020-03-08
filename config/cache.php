@@ -3,8 +3,6 @@
 // | 缓存设置
 // +----------------------------------------------------------------------
 
-$redisOptions = yaconf('redis');
-$redisSessionOptions = yaconf('redis_session');
 
 return [
     // 默认缓存驱动
@@ -15,9 +13,9 @@ return [
         'redis_cache' => [
             'type'       => 'redis',
 
-            'host'       => $redisOptions['host'],
-            'port'       => $redisOptions['port'],
-            'password'   => $redisOptions['password'],
+            'host'       => yaconf('redis.host'),
+            'port'       => yaconf('redis.port'),
+            'password'   => yaconf('redis.password'),
             'persistent' => true,
 
             // 缓存有效期 0表示永久缓存
@@ -29,9 +27,9 @@ return [
         'redis_session' => [
             'type'       => 'redis',
 
-            'host'       => $redisSessionOptions['host'],
-            'port'       => $redisSessionOptions['port'],
-            'password'   => $redisSessionOptions['password'],
+            'host'       => yaconf('redis_session.host'),
+            'port'       => yaconf('redis_session.port'),
+            'password'   => yaconf('redis_session.password'),
             'persistent' => true,
 
             // 缓存有效期 0表示永久缓存
