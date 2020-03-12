@@ -6,7 +6,59 @@
 
 thinkphp6-api 可用于后台单应用及多应用的 API 接口开发，它基于 [thinkphp6](https://github.com/top-think/think) 实现。它使用了最新的后台技术栈，相信不管你的需求是什么，本项目都能帮助到你。
 
+
 ## 2. 功能
+```
+├── app                          应用目录 
+│   ├── api                      api应用  
+│   ├── ├── route                URL和路由配置
+│   ├── ├── controller           控制层
+│   ├── ├── logic                业务逻辑层
+│   ├── ├── model                模型层
+│   ├── ├── view                 视图层
+│   ├── common                   通用处理目录  
+│   ├── ├── event                事件
+│   ├── ├── exception            异常处理
+│   ├── ├── facade               依赖注入    
+│   ├── ├── middleware           中间件    
+│   ├── ├── third                第三方API封装
+│   ├── ├── traits               trait
+│   ├── ├── validate             校验                             
+├── config                       配置目录
+│   ├── extra                    自定义配置  
+│   ├── └── define.php           宏定义
+│   ├── └── EC.php               错误码
+│   ├── └── rule_zh.php          接口中文翻译                                   
+├── db                           数据库目录                     
+├── extend                       扩展类库目录                                     
+│   ├── arrays                   数组处理目录                 
+│   │   └── ArrayList.php   
+│   │   └── Stack.php                       
+│   ├── command                  命令行处理目录
+│   │   └── ExifToolBatch.php 
+│   │   └── FFmpegTool.php 
+│   ├── image                    图像处理目录 
+│   │   └── Imagick2.php
+│   ├── office                   offcie操作目录
+│   │   └── ExcelWrite.php
+│   ├── string                   字符串操作目录 
+│   │   └── P4String.php
+│   │   └── Prefix.php
+│   │   └── Unicode.php
+│   │   └── UUID.php             
+│   └── PhpCryt.php              加密解密
+│   └── QRcode.php               生成二维码
+│   └── Webscan.php              入口参数安全检测
+│   └── ZipArchiveImproved.php   Zip压缩
+├── runtime                      应用的运行时目录
+├── uploads                      上传文件目录
+├── vendor                       Composer类库目录
+└── .env                         环境变量
+└── index.php                    入口文件
+└── .htaccess                    用于apache的重写
+                         
+```
+
 
 ## 3. 编码命名规范
 
@@ -19,6 +71,7 @@ thinkphp6-api 可用于后台单应用及多应用的 API 接口开发，它基�
  `Add`、`Del`、`Modify`、`Upload`、`Save`、`Exist`、`Info`、`Get_List`
 
 > TP自身的数据成员变量,沿用其本身的规范
+
 
 ## 4. 注意事项
  
@@ -66,6 +119,7 @@ thinkphp6-api 可用于后台单应用及多应用的 API 接口开发，它基�
 
 > 更新的最佳实践原则是：如果需要使用模型事件，那么就先查询后更新，如果不需要使用事件或者不查询直接更新，直接使用静态的`Update`方法进行条件更新。静态`Update`方法只适合单条更新
 > 如非必要，尽量不要使用批量更新（或者使用 `->where()->update()` 方式）。
+
 
 ## 5. 源码修改说明
 所有涉及 Vendor 源码库的修改，需要增加 `//Todo: Hacfin` 标识注释
@@ -131,20 +185,26 @@ public function joins(array $joins)
 $this->app->cookie->set($cookieName, $this->session->getId(), $this->app->config->get('cookie.expire'));
 ```
 
+
 ## thinkphp 6 主要新特性
 
-* 采用`PHP7`强类型（严格模式）
-* 支持更多的`PSR`规范
-* 原生多应用支持
+* 采用 `PHP7` 强类型（严格模式）
+* 支持更多的 `PSR` 规范
+* 多应用支持
+* `ORM` 组件独立
+* 改进的中间件机制
 * 更强大和易用的查询
 * 全新的事件系统
-* 模型事件和数据库事件统一纳入事件系统
-* 模板引擎分离出核心
+* 支持容器 `invoke` 回调
+* 模板引擎组件独立
 * 内部功能中间件化
-* SESSION/Cookie机制改进
-* 对Swoole以及协程支持改进
-* 对IDE更加友好
+* `SESSION` 机制改进
+* 缓存及日志支持多通道
+* 引入 `Filesystem` 组件
+* 对` Swoole` 以及协程支持改进
+* 对 `IDE` 更加友好
 * 统一和精简大量用法
+
 
 ## 文档
 
