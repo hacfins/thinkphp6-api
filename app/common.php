@@ -4,7 +4,8 @@
 // +----------------------------------------------------------------------
 
 use think\facade\
-{Cache, Cookie, Request};
+{Cache, Cookie, Request
+};
 
 use Wechat\Loader;
 use app\common\facade\
@@ -81,6 +82,77 @@ function parse_name($name, $type = 0)
     {
         return strtolower(trim(preg_replace('/[A-Z]/', '_\\0', $name), '_'));
     }
+}
+
+/**
+ * 生成唯一邀请码
+ *
+ * @date
+ *
+ * @param int $lenth 邀请码长度
+ *
+ * @return string
+ */
+function create_invite_code(int $lenth = 4): string
+{
+    $code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $rand = $code[rand(0, 25)]
+        . strtoupper(dechex(date('m')))
+        . date('d')
+        . substr(time(), -5)
+        . substr(microtime(), 2, 5)
+        . sprintf('%02d', rand(0, 99));
+    for (
+        $a = md5($rand, true),
+        $s = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        $d = '',
+        $f = 0;
+        $f < $lenth;
+        $g = ord($a[$f]),
+        $d .= $s[($g ^ ord($a[$f + 8])) - $g & 0x1F],
+        $f++
+    )
+        ;
+
+    return $d;
+}
+
+/**
+ * 生成订单编号
+ *
+ * @date
+ * @return string
+ */
+function makeOrderNo()
+{
+    return date("YmdHis") . uniqid();
+}
+
+function s2b($str)
+{
+    //1.列出每个字符
+    $arr = preg_split('/(?<!^)(?!$)/u', $str);
+
+    //2.unpack字符
+    foreach ($arr as &$v)
+    {
+        $temp = unpack('H*', $v);
+        $v    = base_convert($temp[1], 16, 2);
+        unset($temp);
+    }
+
+    return join(' ', $arr);
+}
+
+function b2s($str)
+{
+    $arr = explode(' ', $str);
+    foreach ($arr as &$v)
+    {
+        $v = pack("H" . strlen(base_convert($v, 2, 16)), base_convert($v, 2, 16));
+    }
+
+    return join('', $arr);
 }
 
 
@@ -574,6 +646,38 @@ function dir_del($dir)
     return true;
 }
 
+/**
+ * 导出订单
+ *
+ * @param array  $headings
+ * @param array  $rows
+ * @param string $file_name
+ *
+ * @return bool|string
+ */
+function export_csv($headings = [], $rows = [], $file_name = '')
+{
+    if ((!empty($headings)) && (!empty($rows)))
+    {
+        $file_name = $file_name !== '' ? $file_name : 'export';
+        $name      = $file_name . '_' . date('YmdHis') . '.csv'; //构造文件名
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=' . $name);
+        $output = fopen("../public/" . $name, 'w');
+        array_unshift($rows, $headings); //写入表头
+        foreach ($rows as $row)
+        { //逐行写入
+            $converted = array_map(function ($item) {
+                return iconv('UTF-8', 'GBK', $item);
+            }, $row);
+            fputcsv($output, $converted);
+        }
+
+        return IMG_URL . '/' . $name;
+    }
+
+    return false;
+}
 
 // +----------------------------------------------------------------------
 // | 数组
