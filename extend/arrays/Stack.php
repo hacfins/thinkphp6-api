@@ -3,6 +3,7 @@ namespace arrays;
 
 /**
  * Stack实现类
+ *
  * @category   ORG
  * @package  ORG
  * @subpackage  Util

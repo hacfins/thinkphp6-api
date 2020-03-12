@@ -3,6 +3,7 @@ namespace arrays;
 
 /**
  * ArrayList实现类
+ *
  * @category   Think
  * @package  Think
  * @subpackage  Util

@@ -2,7 +2,8 @@
 namespace command;
 
 /*
- * 文件元数据获取类 - 依赖 exiftool 命令行
+ * 文件元数据获取类
+ *   依赖 exiftool 命令行
  */
 class ExifToolBatch
 {

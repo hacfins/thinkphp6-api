@@ -42,6 +42,14 @@ class PhpCrypt
 		return base64_decode($data);
 	}
 
+    /**
+     * 随机码
+     *
+     * @param int  $length
+     * @param bool $bOnlyNum
+     *
+     * @return string
+     */
 	public  static function Random_Pwd( $length = 4 , $bOnlyNum=false)
 	{
 		// 产生随机密码

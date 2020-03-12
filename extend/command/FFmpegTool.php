@@ -5,8 +5,8 @@ namespace command;
 use think\image\Exception;
 
 /**
- * FFmpeg 工具类 - 依赖 ffmpeg、ffprobe 命令行
- *
+ * FFmpeg 工具类
+ *  依赖 ffmpeg、ffprobe、MP4Box 等命令行
  */
 class FFmpegTool
 {

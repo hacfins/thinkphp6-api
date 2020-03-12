@@ -13,7 +13,8 @@ class Webscan
     private $webscan_cookie;
     private $webscan_referer;
 
-    public function __construct($webscan_switch = 1, $webscan_white_directory = '', $webscan_white_url = array(), $webscan_get = 1, $webscan_post = 1, $webscan_cookie = 1, $webscan_referer = 1)
+    public function __construct($webscan_switch = 1, $webscan_white_directory = '', $webscan_white_url = array(),
+        $webscan_get = 1, $webscan_post = 1, $webscan_cookie = 1, $webscan_referer = 1)
     {
         $this->webscan_switch          = $webscan_switch;
         $this->webscan_white_directory = $webscan_white_directory;
@@ -62,7 +63,8 @@ class Webscan
     private function WebscanStopAttack($StrFiltKey, $StrFiltValue, $ArrFiltReq, $method)
     {
         $StrFiltValue = $this->WebscanArrForeach($StrFiltValue);
-        if (preg_match("/".$ArrFiltReq."/is", $StrFiltValue) == 1 || preg_match("/".$ArrFiltReq."/is", $StrFiltKey) == 1)
+        if (preg_match("/".$ArrFiltReq."/is", $StrFiltValue) == 1 ||
+            preg_match("/".$ArrFiltReq."/is", $StrFiltKey) == 1)
         {
             return true;
         }
