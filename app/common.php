@@ -286,6 +286,9 @@ function crossdomain_cors($methods = 'POST,OPTIONS')
 
     // timeout - 60秒
     header('Keep-Alive:timeout=5, max=60');
+
+    //在这个时间范围内，所有同类型的请求都将不再发送预检请求而是直接使用此次返回的头作为判断依据
+    header("Access-Control-Max-Age:1440");
 }
 
 /*
