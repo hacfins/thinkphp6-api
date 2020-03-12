@@ -1,0 +1,11 @@
+沪A:A408977786
+深A:0258211409
+
+Samens:
+账号 200300004063
+
+Samens:
+密码 132720
+
+lic文件存放路径:
+C:\Users\Administrator\AppData\Local\Temp\jna-146731693\

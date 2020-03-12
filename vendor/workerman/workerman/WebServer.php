@@ -15,6 +15,7 @@ namespace Workerman;
 
 use Workerman\Protocols\Http;
 use Workerman\Protocols\HttpCache;
+use Workerman\Connection\TcpConnection;
 
 /**
  *  WebServer.
@@ -39,7 +40,7 @@ class WebServer extends Worker
     /**
      * Used to save user OnWorkerStart callback settings.
      *
-     * @var callback
+     * @var callable
      */
     protected $_onWorkerStart = null;
 
@@ -52,7 +53,7 @@ class WebServer extends Worker
      */
     public function addRoot($domain, $config)
     {
-        if (is_string($config)) {
+        if (\is_string($config)) {
             $config = array('root' => $config);
         }
         $this->serverRoot[$domain] = $config;
@@ -64,7 +65,7 @@ class WebServer extends Worker
      * @param string $socket_name
      * @param array  $context_option
      */
-    public function __construct($socket_name, $context_option = array())
+    public function __construct($socket_name, array $context_option = array())
     {
         list(, $address) = \explode(':', $socket_name, 2);
         parent::__construct('http:' . $address, $context_option);
@@ -125,7 +126,7 @@ class WebServer extends Worker
             $this->log("$mime_file mime.type file not fond");
             return;
         }
-        $items = \file($mime_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $items = \file($mime_file, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES);
         if (!\is_array($items)) {
             $this->log("get $mime_file mime.type content fail");
             return;
@@ -145,10 +146,10 @@ class WebServer extends Worker
     /**
      * Emit when http message coming.
      *
-     * @param Connection\TcpConnection $connection
+     * @param TcpConnection $connection
      * @return void
      */
-    public function onMessage($connection)
+    public function onMessage(TcpConnection $connection)
     {
         // REQUEST_URI.
         $workerman_url_info = \parse_url('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
@@ -171,7 +172,7 @@ class WebServer extends Worker
             $workerman_file_extension = 'php';
         }
 
-        $workerman_siteConfig = isset($this->serverRoot[$_SERVER['SERVER_NAME']]) ? $this->serverRoot[$_SERVER['SERVER_NAME']] : current($this->serverRoot);
+        $workerman_siteConfig = isset($this->serverRoot[$_SERVER['SERVER_NAME']]) ? $this->serverRoot[$_SERVER['SERVER_NAME']] : \current($this->serverRoot);
 		$workerman_root_dir = $workerman_siteConfig['root'];
         $workerman_file = "$workerman_root_dir/$workerman_path";
 		if(isset($workerman_siteConfig['additionHeader'])){
@@ -204,7 +205,7 @@ class WebServer extends Worker
 
             // Request php file.
             if ($workerman_file_extension === 'php') {
-                $workerman_cwd = getcwd();
+                $workerman_cwd = \getcwd();
                 \chdir($workerman_root_dir);
                 \ini_set('display_errors', 'off');
                 \ob_start();
@@ -216,7 +217,7 @@ class WebServer extends Worker
                     include $workerman_file;
                 } catch (\Exception $e) {
                     // Jump_exit?
-                    if ($e->getMessage() != 'jump_exit') {
+                    if ($e->getMessage() !== 'jump_exit') {
                         Worker::safeEcho($e);
                     }
                 }
@@ -236,7 +237,7 @@ class WebServer extends Worker
         } else {
             // 404
             Http::header("HTTP/1.1 404 Not Found");
-			if(isset($workerman_siteConfig['custom404']) && file_exists($workerman_siteConfig['custom404'])){
+			if(isset($workerman_siteConfig['custom404']) && \file_exists($workerman_siteConfig['custom404'])){
 				$html404 = \file_get_contents($workerman_siteConfig['custom404']);
 			}else{
 				$html404 = '<html><head><title>404 File not found</title></head><body><center><h3>404 Not Found</h3></center></body></html>';
@@ -253,7 +254,7 @@ class WebServer extends Worker
     public static function sendFile($connection, $file_path)
     {
         // Check 304.
-        $info = stat($file_path);
+        $info = \stat($file_path);
         $modified_time = $info ? \date('D, d M Y H:i:s', $info['mtime']) . ' ' . \date_default_timezone_get() : '';
         if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $info) {
             // Http 304.
@@ -282,12 +283,12 @@ class WebServer extends Worker
         if (isset(self::$mimeTypeMap[$extension])) {
             $header .= "Content-Type: " . self::$mimeTypeMap[$extension] . "\r\n";
         } else {
-            $header .= "Content-Type: application/octet-stream\r\n";
-            $header .= "Content-Disposition: attachment; filename=\"$file_name\"\r\n";
+            $header .= "Content-Type: application/octet-stream\r\n"
+                    ."Content-Disposition: attachment; filename=\"$file_name\"\r\n";
         }
-        $header .= "Connection: keep-alive\r\n";
-        $header .= $modified_time;
-        $header .= "Content-Length: $file_size\r\n\r\n";
+        $header .= "Connection: keep-alive\r\n"
+                .$modified_time
+                ."Content-Length: $file_size\r\n\r\n";
         $trunk_limit_size = 1024*1024;
         if ($file_size < $trunk_limit_size) {
             return $connection->send($header.\file_get_contents($file_path), true);

@@ -44,6 +44,29 @@ trait JoinAndViewQuery
     }
 
     /**
+     *Todo: Hacfin
+     *
+     * 查询SQL组装 joins
+     *
+     * @param array $joins
+     *  [
+     *    ['user_auth ua', 'u.user_name=ua.user_name', 'left']
+     *  ]
+     * @return $this
+     */
+    public function joins(array $joins)
+    {
+        // 如果为组数，则循环调用join
+        foreach ($joins as $key => $value) {
+            if (is_array($value) && 2 <= count($value)) {
+                $this->join($value[0], $value[1], isset($value[2]) ? $value[2] : 'INNER');
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * LEFT JOIN
      * @access public
      * @param mixed $join      关联的表名
@@ -109,7 +132,7 @@ trait JoinAndViewQuery
             // 使用别名
             if (strpos($join, ' ')) {
                 // 使用别名
-                list($table, $alias) = explode(' ', $join);
+                [$table, $alias] = explode(' ', $join);
             } else {
                 $table = $join;
                 if (false === strpos($join, '.')) {
@@ -209,7 +232,7 @@ trait JoinAndViewQuery
             foreach ($options['order'] as $key => $val) {
                 if (is_numeric($key) && is_string($val)) {
                     if (strpos($val, ' ')) {
-                        list($field, $sort) = explode(' ', $val);
+                        [$field, $sort] = explode(' ', $val);
                         if (array_key_exists($field, $options['map'])) {
                             $options['order'][$options['map'][$field]] = $sort;
                             unset($options['order'][$key]);

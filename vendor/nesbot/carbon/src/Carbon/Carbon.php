@@ -56,6 +56,8 @@ use DateTime;
  * @property-read int            $daysInMonth                                                                          number of days in the given month
  * @property-read string         $latinMeridiem                                                                        "am"/"pm" (Ante meridiem or Post meridiem latin lowercase mark)
  * @property-read string         $latinUpperMeridiem                                                                   "AM"/"PM" (Ante meridiem or Post meridiem latin uppercase mark)
+ * @property-read string         $timezoneAbbreviatedName                                                              the current timezone abbreviated name
+ * @property-read string         $tzAbbrName                                                                           alias of $timezoneAbbreviatedName
  * @property-read string         $dayName                                                                              long name of weekday translated according to Carbon locale, in english if no translation available for current language
  * @property-read string         $shortDayName                                                                         short name of weekday translated according to Carbon locale, in english if no translation available for current language
  * @property-read string         $minDayName                                                                           very short name of weekday translated according to Carbon locale, in english if no translation available for current language
@@ -80,8 +82,6 @@ use DateTime;
  * @property-read bool           $utc                                                                                  checks if the timezone is UTC, true if UTC, false otherwise
  * @property-read string         $timezoneName                                                                         the current timezone name
  * @property-read string         $tzName                                                                               alias of $timezoneName
- * @property-read string         $timezoneAbbreviatedName                                                              the current timezone abbreviated name
- * @property-read string         $tzAbbrName                                                                           alias of $timezoneAbbreviatedName
  * @property-read string         $locale                                                                               locale of the current instance
  *
  * @method        bool           isUtc()                                                                               Check if the current instance has UTC timezone. (Both isUtc and isUTC cases are valid.)
@@ -500,9 +500,9 @@ use DateTime;
  * @method        string         longRelativeToNowDiffForHumans(\DateTimeInterface $other = null, int $parts = 1)      Get the difference (long format, 'RelativeToNow' mode) in a human readable format in the current locale. ($other and $parts parameters can be swapped.)
  * @method        string         shortRelativeToOtherDiffForHumans(\DateTimeInterface $other = null, int $parts = 1)   Get the difference (short format, 'RelativeToOther' mode) in a human readable format in the current locale. ($other and $parts parameters can be swapped.)
  * @method        string         longRelativeToOtherDiffForHumans(\DateTimeInterface $other = null, int $parts = 1)    Get the difference (long format, 'RelativeToOther' mode) in a human readable format in the current locale. ($other and $parts parameters can be swapped.)
- * @method        static static  createFromImmutable(\DateTimeImmutable $dateTime)                                     Create a new Carbon object from an immutable date.
- * @method        static static  createFromFormat(string $format, string $time, string|\DateTimeZone $timezone = null) Parse a string into a new Carbon object according to the specified format.
- * @method        static static  __set_state(array $array)                                                             https://php.net/manual/en/datetime.set-state.php
+ * @method        static Carbon  createFromImmutable(\DateTimeImmutable $dateTime)                                     Create a new Carbon object from an immutable date.
+ * @method        static Carbon  createFromFormat(string $format, string $time, string|\DateTimeZone $timezone = null) Parse a string into a new Carbon object according to the specified format.
+ * @method        static Carbon  __set_state(array $array)                                                             https://php.net/manual/en/datetime.set-state.php
  *
  * </autodoc>
  */

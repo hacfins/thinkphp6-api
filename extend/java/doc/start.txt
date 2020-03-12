@@ -1,0 +1,3 @@
+cd /www/wwwroot/api.base/extend/java/ && nohup java -jar JavaBridge.jar SERVLET_LOCAL:8080 &
+
+jar -cMf JavaBridge.jar .
