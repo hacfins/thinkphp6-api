@@ -68,7 +68,10 @@ class SessionInit
 
         $response->setSession($this->session);
 
-        $this->app->cookie->set($cookieName, $this->session->getId());
+        //Todo: Hacfin
+        //修复 session 数据保存时，无法动态修改过期时间的问题
+        $this->app->cookie->set($cookieName, $this->session->getId(), $this->app->config->get('cookie.expire'));
+        //$this->app->cookie->set($cookieName, $this->session->getId());
 
         return $response;
     }

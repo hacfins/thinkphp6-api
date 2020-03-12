@@ -624,7 +624,16 @@ abstract class PDOConnection extends Connection implements ConnectionInterface
             $key       = $cacheItem->getKey();
 
             if ($this->cache->has($key)) {
-                return $this->cache->get($key);
+
+                //Todo: Hacfin
+                //修复在高并发下，返回值为null的bug
+                $result = $this->cache->get($key);
+
+                if ($result) {
+                    return $result;
+                }
+
+                //return $this->cache->get($key);
             }
         }
 
@@ -1037,7 +1046,16 @@ abstract class PDOConnection extends Connection implements ConnectionInterface
             $key       = $cacheItem->getKey();
 
             if ($this->cache->has($key)) {
-                return $this->cache->get($key);
+
+                //Todo: Hacfin
+                //修复在高并发下，返回值为null的bug
+                $result = $this->cache->get($key);
+
+                if (false !== $result) {
+                    return $result;
+                }
+
+                //return $this->cache->get($key);
             }
         }
 
@@ -1119,10 +1137,18 @@ abstract class PDOConnection extends Connection implements ConnectionInterface
         if (!empty($options['cache'])) {
             // 判断查询缓存
             $cacheItem = $this->parseCache($query, $options['cache']);
-            $name      = $cacheItem->getKey();
+            $name       = $cacheItem->getKey();
 
             if ($this->cache->has($name)) {
-                return $this->cache->get($name);
+                //Todo: Hacfin
+                //修复在高并发下，返回值为null的bug
+                $result = $this->cache->get($name);
+
+                if (false !== $result) {
+                    return $result;
+                }
+
+                //return $this->cache->get($name);
             }
         }
 

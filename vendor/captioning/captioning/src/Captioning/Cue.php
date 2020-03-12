@@ -205,7 +205,10 @@ abstract class Cue implements CueInterface
             throw new \Exception('No text provided.');
         }
 
-        $this->textLines = array_map('trim', preg_split('/$\R?^/m', $_text));
+        //Todo: Hacfin
+        //"\r\t\n\0\x0B"
+        $this->textLines = array_map('trim', preg_split('/$\R?^/m', $_text), ["\r\t\n\0\x0B"]);
+        //$this->textLines = array_map('trim', preg_split('/$\R?^/m', $_text));
     }
 
     /**
