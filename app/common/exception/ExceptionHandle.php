@@ -65,32 +65,15 @@ class ExceptionHandle extends Handle
         // 自定义的 ResponseException 异常不需要返回 trace 信息
         if (Env::get('app_debug') && !($e instanceof ResponseException))
         {
-            $trace = [];
-
-            $file = $e->getFile();
-
-            //过滤tp5的help函数和自定义的E()
-            if (strpos($file, 'thinkphp/helper.php') === false && strpos($file, 'app/common.php') === false)
-            {
-                //抛出异常的位置
-                $trace[] = $file . "[{$e->getLine()}]";
-            }
-
-            $ts = $e->getTrace();
-            foreach ($ts as $t)
-            {
-                if (isset($t['file']) && isset($t['line']))
-                {
-                    $trace[] = $t['file'] . "[{$t['line']}]";
-                }
-            }
-            $result['trace'] = $trace;
+            $result['error']['file']  = $e->getFile();
+            $result['error']['line']  = $e->getLine();
+            $result['error']['trace'] = $e->getTrace();
         }
         //生产模式
         else
         {
             //只显示自定义的异常信息
-            if(!\EC::Has($errCode))
+            if (!\EC::Has($errCode))
             {
                 $result['msg'] = '程序出错,请联系管理员';
             }

@@ -180,19 +180,18 @@ trait DataCheck
             }
 
             self::$_input = $params;
-
             if ($toVali)
             {
-                return $this->validate(self::$_input, $rule);
+                //当参数校验有误时，会抛出异常
+                $this->validate($params, $rule);
             }
-            else
-            {
-                return true;
-            }
+
+            //返回正确的参数
+            return $params;
         }
         catch (\Throwable $e)
         {
-            return $e->getMessage();
+            E(\EC::PARAM_ERROR, $e->getMessage(), false);
         }
     }
 }
