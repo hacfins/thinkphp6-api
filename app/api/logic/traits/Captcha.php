@@ -3,7 +3,7 @@ namespace app\api\logic\traits;
 
 use app\api\model\
 {
-    common\Verify, rbac\User, rbac\UserAuth
+    common\Verify
 };
 
 /*
@@ -11,8 +11,6 @@ use app\api\model\
  */
 trait Captcha
 {
-    use ConfInfo;
-
     //==================================================== 验证码 =======================================================
     /**
      * 生成验证码
@@ -153,58 +151,6 @@ EOF;
             static::$_error_msg  = $e->getMessage();
             return false;
         }
-    }
-
-    /**
-     * 检测账户是否可用
-     *
-     * @param string $key      手机号|邮箱
-     * @param bool   $bIsPhone 是否是手机号
-     *
-     * @return bool
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    private function CheckUserExist(string $key, bool $bIsPhone=true)
-    {
-        if ($bIsPhone)
-        {
-            $userName = UserAuth::instance()->CheckExist_Phone($key);
-            if (!$userName)
-            {
-                static::$_error_code = \EC::USER_PHONE_NOTEXIST_ERROR;
-
-                return false;
-            }
-        }
-        else
-        {
-            $userName = UserAuth::instance()->CheckExist_Email($key);
-            if (!$userName)
-            {
-                static::$_error_code = \EC::USER_EMAIL_NOT_EXIST_ERROR;
-
-                return false;
-            }
-        }
-
-        $info = User::instance()->GetInfo($userName);
-        if (!$info)
-        {
-            static::$_error_code = \EC::USER_PHONE_NOTEXIST_ERROR;
-
-            return false;
-        }
-
-        if ($info['status'] == USER_STATUS_DISABLED)
-        {
-            static::$_error_code = \EC::USER_DISABLE_ERROR;
-
-            return false;
-        }
-
-        return true;
     }
 
     /**

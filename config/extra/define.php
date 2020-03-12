@@ -76,6 +76,15 @@ define('BROWSE_IMG_THUMB_GIF_FILESIZE_MAX', 2097152); //-图片缩略图==>可�
 // +--------------------------------------------------------------------------
 // |  图像
 // +--------------------------------------------------------------------------
+//-缩略图尺寸
+define('THUMBER_ORIGIN', 0); //原图
+define('THUMBER_MINI_PHOTE', 30);
+define('THUMBER_MINI', 48);
+define('THUMBER_SMALL', 96);
+define('THUMBER_MIDDLE', 200);
+
+define('THUMBER_SET', THUMBER_ORIGIN . ',' . THUMBER_MINI . ',' . THUMBER_SMALL . ',' . THUMBER_MIDDLE);
+
 //-图片返回类型
 define('IMG_RTYPE_PIC', 1); //直接显示图片
 define('IMG_RTYPE_URL', 2); //防盗链地址
@@ -148,15 +157,18 @@ define('AUTH_PRODUCT_VERSION', '1.0.1');
 
 
 // +--------------------------------------------------------------------------
+// |  Tools
+// +--------------------------------------------------------------------------
+define('TOOL_FFMPEG', '/usr/local/ffmpeg/bin/');
+define('TOOL_MP4BOX', '/usr/local/MP4Box/bin/');
+define('TOOL_IMAGEMAGICK', '/usr/local/bin/');
+define('TOOL_XPDF', '/usr/local/bin/');
+define('TOOL_EXIFTOOL', '/usr/local/bin/');
+
+
+// +--------------------------------------------------------------------------
 // |  模型层常量定义
 // +--------------------------------------------------------------------------
-//===================================================== UserTokens =====================================================
-define('USERTOKENS_STATUE_ENABLED', 1); //可用
-define('USERTOKENS_STATUE_OFFLINE', 2); //掉线
-
-define('USERTOKENS_TOKEN_EXPIRES', 259200); //72小时 - 3600*24*3
-define('USERTOKENS_TOKEN_EXPIRES_LONG', 2592000); //30天 - 3600*24*30
-
 //===================================================== LogOp =====================================================
 //操作类型
 define('USERLOGOP_OP_TYPE_LOGIN', 1); //登录系统 - 特殊
@@ -165,3 +177,32 @@ define('LOGOP_OP_TYPE_MODIFY', 3); //修改记录
 define('LOGOP_OP_TYPE_REMOVE', 4); //移除记录
 
 define('LOGOP_OP_TYPE_ARR', [USERLOGOP_OP_TYPE_LOGIN, LOGOP_OP_TYPE_ADD, LOGOP_OP_TYPE_MODIFY, LOGOP_OP_TYPE_REMOVE]);
+
+//===================================================== File ===========================================================
+//-缩略图后缀
+define('FILE_CONVERT_THUMB', '_thumb_');
+define('FILE_CONVERT_THUMB1', '_thumb');
+
+define('FILE_SUFFIX_RAW', '_raw'); //原始文件
+define('FILE_SUFFIX_RAW_EXT', '_ext'); //原始文件-带后缀
+
+define('FILE_TYPE_RECORD',  0);//录像
+define('FILE_TYPE_VIDEO',   1);//视频
+define('FILE_TYPE_PICTURE', 2);//图片
+define('FILE_TYPE_TEXT',    3);//文本
+define('FILE_TYPE_AUDIO',   4);//音频
+define('FILE_TYPE_OTHER',   5);//其他
+define('FILE_TYPE_ARCHIVE', 1000);//集合
+
+define('FILE_TYPE_SET', FILE_TYPE_VIDEO . ',' . FILE_TYPE_PICTURE . ',' . FILE_TYPE_TEXT . ',' . FILE_TYPE_AUDIO.
+    ',' . FILE_TYPE_OTHER . ',' . FILE_TYPE_RECORD);
+
+define('FILE_ARRAY_SOURCE_TYPE', [
+    FILE_TYPE_RECORD,
+    FILE_TYPE_VIDEO,
+    FILE_TYPE_PICTURE,
+    FILE_TYPE_TEXT,
+    FILE_TYPE_AUDIO,
+    FILE_TYPE_OTHER,
+    FILE_TYPE_ARCHIVE,
+]);

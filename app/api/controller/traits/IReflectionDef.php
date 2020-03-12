@@ -20,33 +20,6 @@ interface IReflectionDef
                 'Auth',
                 'UserRole',
             ],
-            //-location
-            'location' => [
-                'Area',
-            ],
-            //-passport
-            'passport'  => [
-                'Common',
-                'User',
-                'Wxlogin',
-            ],
-            //-report
-            'report' => [
-                'UserReport',
-            ],
-            //-user
-            'user'    => [
-                'User',
-                'Message',
-                'Relation',
-                'UserLog',
-                'UserManage'
-            ],
-            //-website
-            'website' => [
-                'Access',
-                'Video'
-            ]
         ]
     ];
 

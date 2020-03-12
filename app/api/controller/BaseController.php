@@ -134,7 +134,7 @@ class BaseController implements IReflectionDef
      */
     protected function IsAdmin()
     {
-        if (self::$_uname == USER_NAME_ADMIN)
+        if (self::$_uname == 'admin')
         {
             return true;
         }
