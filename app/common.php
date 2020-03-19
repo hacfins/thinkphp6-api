@@ -574,6 +574,26 @@ function download_file(string $file, string $downloadFileName = null, int $expir
     }
 }
 
+/*
+ * 根据 text 文本内容，获取二维码
+ *
+ * 返回 二维码文件的路径
+ */
+function qrcode($text)
+{
+    $fileName = md5($text);
+    if (!is_dir(DIR_IMGS_QRCODEDS))
+        mk_dir(DIR_IMGS_QRCODEDS);
+    $filePath = DIR_IMGS_QRCODEDS . $fileName;
+
+    if (!is_file($filePath))
+    {
+        QRcode::png($text, $filePath, QR_ECLEVEL_L, 4, 0); //生成二维码
+    }
+
+    return $filePath;
+}
+
 function rmBOM(string $string)
 {
     if (substr($string, 0, 3) == pack('CCC', 0xef, 0xbb, 0xbf))

@@ -39,6 +39,9 @@ function yaconf($name, $default = null)
 // +--------------------------------------------------------------------------
 define('LICENSE_FILE', ini_get('yaconf.directory') . DIRECTORY_SEPARATOR . yaconf('license.file'));
 
+//-导入用户模板
+define('IMPORTUSERS_FILE', ini_get('yaconf.directory') . DIRECTORY_SEPARATOR . 'importusers.xls');
+
 //-临时文件
 define('DIR_TEMPS', yaconf('storage.dir') . 'temps' . DIRECTORY_SEPARATOR);
 define('DIR_TEMPS_IMGS', DIR_TEMPS . 'imgs' . DIRECTORY_SEPARATOR); //-图片的base64编码生成的临时文件
@@ -119,6 +122,23 @@ define('CACHE_TIME_DAY', 86400);                        //缓存时间 - 24小�
 define('CACHE_USER_LOGIN_OS_INFO', 'userLoginOSInfo:'); //用户终端的登录信息
 define('CACHE_USER_LIMIT', 'userLimit:');               //用户速率限制
 
+// +--------------------------------------------------------------------------
+// |  缓存 - 逻辑层
+// +--------------------------------------------------------------------------
+//-产品
+define('CACHE_AUTH_PRODUCT',  'auth_product'); //产品授权信息
+define('CACHE_AUTH_PRODUCT_TIME',  7200); //产品授权信息 - 缓存时间
+
+//-用户
+define('CACHE_OAUTH_OPENID', 'oauth_openid:'); //第三方登录信息
+
+//-上传
+define('CACHE_UPLOAD_FILE', 'upload:'); //文件上传fid 与 实际路径的映射
+
+//-SSO
+define('CACHE_SSO_SESSIONIDS', 'sso_sids:'); //sso session ids
+define('CACHE_TIME_SSO_LONG', 2764800); //32天
+
 
 // +--------------------------------------------------------------------------
 // |  缓存 - 模型层
@@ -146,9 +166,16 @@ define('OTHER_LOGIN', 'other_');                        //第三方登录
 
 //-用户身份识别 —— 请勿擅自改动!!!
 define('SESSIONID_USER_TOKEN', 'utoken');               //识别码
-define('COOKIEID_USER_TOKEN', 'hc_c_utoken');
-define('SESSIONID_USER_NAME', 'name'); //用户名
-define('SESSIONID_USER_IP', 'ip');     //ip
+define('COOKIEID_USER_TOKEN', 'a_c_utoken');
+define('SESSIONID_USER_NAME', 'name');   //用户名
+define('SESSIONID_USER_IP', 'ip');       //ip
+
+
+//-Client
+//SSO 系统的名称，请勿擅自修!!!
+define('SESSIONID_USER_INFO', 'sso_uinfo'); //用户登录信息
+define('SESSION_SSO_ID', 'a_session'); //session id - sso
+define('Cookie_SSO_UTOKEN', 'a_c_utoken'); //share cookie - sso
 
 
 // +--------------------------------------------------------------------------
@@ -156,6 +183,12 @@ define('SESSIONID_USER_IP', 'ip');     //ip
 // +--------------------------------------------------------------------------
 define('AUTH_PRODUCT_NAME', 'hc_common');
 define('AUTH_PRODUCT_VERSION', '1.0.1');
+
+
+// +--------------------------------------------------------------------------
+// |  限制
+// +--------------------------------------------------------------------------
+define('SWITCH_API_LIMIT_TIMES', 100);   //API速率限制
 
 
 // +--------------------------------------------------------------------------
@@ -171,21 +204,62 @@ define('TOOL_EXIFTOOL', '/usr/local/bin/');
 // +--------------------------------------------------------------------------
 // |  模型层常量定义
 // +--------------------------------------------------------------------------
-//===================================================== UserTokens =====================================================
-define('USERTOKENS_STATUE_ENABLED', 1); //可用
-define('USERTOKENS_STATUE_OFFLINE', 2); //掉线
+//===================================================== User ===========================================================
+define('USER_NAME_SYS',    '系统'); //系统的用户编号
+define('USER_NAME_UNKOWN', '匿名'); //匿名用户的编号
+define('USER_NAME_ADMIN',  'admin'); //超级管理员
 
-define('USERTOKENS_TOKEN_EXPIRES', 259200); //72小时 - 3600*24*3
+define('USER_SEX_UNKOWN', 0); //保密
+define('USER_SEX_MAN',   1); //男
+define('USER_SEX_WOMEN', 2); //女
+
+define('USER_STATUS_WAITING',  0); //待激活
+define('USER_STATUS_ENABLED',  1); //可用
+define('USER_STATUS_DISABLED', 2); //禁用
+
+define('ROLE_TYPE_GENERAL', 1); //普通角色
+define('ROLE_TYPE_SYSTEM', 2); //系统角色（不可删除）
+define('ROLE_TYPE_SET', ROLE_TYPE_GENERAL . ',' . ROLE_TYPE_SYSTEM);
+
+define('ROLE_GUEST_ROLE', '9630534592ed4b1981faef04218113f5'); //访客
+define('ROLE_USER_ROLE', 'e4e638fa71cc41c5898d42f453dba534'); //普通用户
+define('ROLE_TEACHER_ROLE', '11d2401f92c84feea6ec72bf3100f1d9'); //讲师
+
+//===================================================== UserAuth =======================================================
+//-获取授权信息的类型
+define('USERAUTH_TYPE_USERNAME', 1); //用户名
+define('USERAUTH_TYPE_PHONE', 2); // 手机号
+define('USERAUTH_TYPE_EMAIL', 3); // 邮箱
+
+//===================================================== UserOauths =====================================================
+define('USEROAUTHS_TYPE_WEIXIN', 1); //微信
+
+define('USEROAUTHS_TYPE_SET', USEROAUTHS_TYPE_WEIXIN);
+
+//===================================================== UserTokens =====================================================
+define('USERTOKENS_STATUE_ENABLED', 1);  //可用
+define('USERTOKENS_STATUE_OFFLINE', 2);  //掉线
+
+define('USERTOKENS_TOKEN_EXPIRES', 259200);       //72小时 - 3600*24*3
 define('USERTOKENS_TOKEN_EXPIRES_LONG', 2592000); //30天 - 3600*24*30
 
 //===================================================== LogOp =====================================================
 //操作类型
-define('USERLOGOP_OP_TYPE_LOGIN', 1);  //登录系统 - 特殊
-define('LOGOP_OP_TYPE_ADD', 2);        //添加记录
-define('LOGOP_OP_TYPE_MODIFY', 3);     //修改记录
-define('LOGOP_OP_TYPE_REMOVE', 4);     //移除记录
+define('USERLOGOP_OP_TYPE_LOGIN', 1);             //登录系统 - 特殊
+define('LOGOP_OP_TYPE_ADD', 2);                   //添加记录
+define('LOGOP_OP_TYPE_MODIFY', 3);                //修改记录
+define('LOGOP_OP_TYPE_REMOVE', 4);                //移除记录
 
 define('LOGOP_OP_TYPE_ARR', [USERLOGOP_OP_TYPE_LOGIN, LOGOP_OP_TYPE_ADD, LOGOP_OP_TYPE_MODIFY, LOGOP_OP_TYPE_REMOVE]);
+
+//===================================================== UserLogOp =====================================================
+//操作类型
+define('USERLOGOP_OP_TYPE_ADD',     2); //添加记录
+define('USERLOGOP_OP_TYPE_MODIFY',  3); //修改记录
+define('USERLOGOP_OP_TYPE_REMOVE',  4); //移除记录
+
+define('USERLOGOP_OP_DETAIL_LOGIN',  '用户登录');
+define('USERLOGOP_OP_DETAIL_ADD',    '新增用户');
 
 //===================================================== File ===========================================================
 //-缩略图后缀

@@ -22,7 +22,7 @@ class Apache
     {
         if (!isset($path) || !is_file($path))
         {
-            E(\EC::SOURCE_NOT_EXIST_ERROR);
+            E(\EC::FILE_NOTEXIST_ERROR);
         }
 
         $fileSize =  filesize($path);

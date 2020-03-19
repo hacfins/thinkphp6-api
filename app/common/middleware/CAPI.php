@@ -4,7 +4,7 @@ namespace app\common\middleware;
 
 use app\api\controller\traits\IReflectionDef;
 use app\api\logic\
-{AuthLogic, BaseLogic, WebsiteLogic};
+{AuthLogic, BaseLogic};
 use app\common\third\CloudSignature;
 use Carbon\Carbon;
 use think\facade\Cache;
@@ -24,10 +24,7 @@ class CAPI implements IReflectionDef
     public function handle(Request $request, \Closure $next)
     {
         //【4.0】 API 调用频率限制
-        $SwitchInfo = (new WebsiteLogic())->Switch_GetInfo();
-        $apiLimit = $SwitchInfo['api_limit'] ?? YES;
-        if ($apiLimit == YES)
-            $this->API_Limit();
+        $this->API_Limit();
 
         //【5.0】 API应用接入授权
         $this->AuthSignature();

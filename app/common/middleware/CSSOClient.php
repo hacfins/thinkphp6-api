@@ -4,7 +4,6 @@ namespace app\common\middleware;
 
 use app\api\controller\BaseController;
 use app\api\controller\traits\DataResponse;
-use app\api\logic\UserLogic;
 use app\api\logic\UserLoginLogic;
 use app\common\facade\Request;
 use think\facade\
@@ -81,14 +80,6 @@ class CSSOClient
         {
             $GLOBALS['uinfo']     = BaseController::$_uinfo = $info;
             $GLOBALS['user_name'] = BaseController::$_uname = strtolower($info['user_name']);
-
-            //同步用户信息
-            if ($bSync)
-            {
-                (new UserLogic())->SyncUserInfo($info['user_name'], $info['nick_name'], $info['full_name'], $info['sex'],
-                    $info['birthday'], $info['adcode'], $info['company'], $info['avator'],
-                    YES, $info['description']);
-            }
         }
         else
         {
