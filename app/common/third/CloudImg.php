@@ -44,7 +44,7 @@ class CloudImg extends CloudSignature
         }
 
         $rtn = [
-            'code' => \EC::FILE_UPLOAD_ERROR,
+            'code' => \EC::UPL_UPLOAD_ERROR,
             'msg'  => $curl->errorMessage,
         ];
         $curl->close();
