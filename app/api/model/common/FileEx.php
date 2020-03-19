@@ -17,7 +17,7 @@ class FileEx
     {
         if (!is_file($filePath))
         {
-            E(\EC::SOURCE_NOT_EXIST_ERROR);
+            E(\EC::FILE_NOTEXIST_ERROR);
         }
 
         //根据文件扩展名将mime（application/*）无法识别的文件再分类
@@ -166,7 +166,7 @@ class FileEx
     {
         if (!is_file($filePath))
         {
-            E(\EC::SOURCE_NOT_EXIST_ERROR);
+            E(\EC::FILE_NOTEXIST_ERROR);
         }
 
         // 直接获取

@@ -17,8 +17,10 @@ class CloudAuth
         420 => \EC::AUTH_NOT_EXIST,
         421 => \EC::AUTH_MACHINESCODE_EXIST,
         423 => \EC::AUTH_ACTIVECODE_ERROR,
+        424 => \EC::AUTH_EXPIRE_ERROR,
         440 => \EC::DB_OPERATION_ERROR,
-        424 => \EC::AUTH_EXPIRE_ERROR
+        460 => \EC::AUTH_RULE_NOT_EXIST,
+        461 => \EC::AUTH_RULE_EXIST,
     );
 
     public function __construct()

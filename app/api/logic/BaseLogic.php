@@ -2,6 +2,7 @@
 namespace app\api\logic;
 
 use app\api\logic\traits\ImgProcess;
+use app\api\model\rbac\User;
 
 /*
  * 业务逻辑基类
@@ -14,6 +15,7 @@ class BaseLogic
     public static $_error_msg  = '';
 
     protected static $_uname = false; //用户名
+    protected static $_uinfo = false; //用户信息 - SSO
     protected static $_token = false; //用户令牌
 
     // +----------------------------------------------------------------------
@@ -33,6 +35,12 @@ class BaseLogic
         {
             self::$_token = $GLOBALS['token'];
         }
+
+        //用户info
+        if (isset($GLOBALS['uinfo']))
+        {
+            self::$_uinfo = $GLOBALS['uinfo'];
+        }
     }
 
     /**
@@ -51,5 +59,27 @@ class BaseLogic
         }
 
         return false;
+    }
+
+    /**
+     * 用户昵称
+     *
+     * @param $user_name
+     *
+     * @return string
+     */
+    protected function GetNickName($user_name)
+    {
+        $arr = [
+            USER_NAME_SYS,
+            USER_NAME_UNKOWN,
+        ];
+        if (in_array($user_name, $arr))
+        {
+            return $user_name;
+        }
+
+        $user = User::instance();
+        return $user->GetNickName($user_name ?? '');
     }
 }

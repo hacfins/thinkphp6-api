@@ -59,13 +59,13 @@ class Img
     {
         if (!is_readable($file))//whether a file exists and is readable
         {
-            E(\EC::SOURCE_NOT_EXIST_ERROR);
+            E(\EC::FILE_NOTEXIST_ERROR);
         }
 
         $info = getimagesize($file); //get mime info
         if (!$info)
         {
-            E(\EC::SOURCE_NOT_EXIST_ERROR);
+            E(\EC::FILE_NOTEXIST_ERROR);
         }
 
         $filemtime = filemtime($file);
@@ -156,7 +156,7 @@ class Img
     {
         if (!is_file($filePath))
         {
-            E(\EC::SOURCE_NOT_EXIST_ERROR);
+            E(\EC::FILE_NOTEXIST_ERROR);
         }
 
         $fInfo    = new \FInfo(FILEINFO_MIME_TYPE);
@@ -395,7 +395,7 @@ class Img
     {
         if (!is_file($file))
         {
-            E(\EC::SOURCE_NOT_EXIST_ERROR);
+            E(\EC::FILE_NOTEXIST_ERROR);
         }
 
         $pathInfo = pathinfo($file);

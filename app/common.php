@@ -61,6 +61,26 @@ function guid()
     );
 }
 
+function guid_eight()
+{
+    return sprintf('%04x%04x',
+        // 32 bits for "time_low"
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    // 16 bits for "time_mid"
+    );
+}
+
+/**
+ * 生成直播间编号
+ *
+ * @date
+ * @return string
+ */
+function make_streamname()
+{
+    return (new \DateTime())->format("YmdHisu") . sprintf('%04x', mt_rand(0, 0xffff));
+}
+
 /**
  * 字符串命名风格转换
  * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
@@ -197,6 +217,27 @@ function microtime_format(int $time)
 function datatime_add_seconds($value)
 {
     return Carbon::now()->addSeconds($value)->toDateTimeString();
+}
+
+/**
+ * 获取日期对应的周几
+ *
+ * @param string|null $date 日期 2015-05-05
+ *
+ * @return int
+ */
+function get_week(string $date = null)
+{
+    if (isset($date))
+    {
+        $day = Carbon::createFromFormat(Carbon::DEFAULT_TO_STRING_FORMAT, $date . ' 00:00:00');
+    }
+    else
+    {
+        $day = Carbon::now();
+    }
+
+    return $day->dayOfWeekIso;
 }
 
 /**
@@ -531,6 +572,26 @@ function download_file(string $file, string $downloadFileName = null, int $expir
         //readfile($file);
         return file_get_contents($file);
     }
+}
+
+/*
+ * 根据 text 文本内容，获取二维码
+ *
+ * 返回 二维码文件的路径
+ */
+function qrcode($text)
+{
+    $fileName = md5($text);
+    if (!is_dir(DIR_IMGS_QRCODEDS))
+        mk_dir(DIR_IMGS_QRCODEDS);
+    $filePath = DIR_IMGS_QRCODEDS . $fileName;
+
+    if (!is_file($filePath))
+    {
+        QRcode::png($text, $filePath, QR_ECLEVEL_L, 4, 0); //生成二维码
+    }
+
+    return $filePath;
 }
 
 function rmBOM(string $string)
@@ -1081,9 +1142,10 @@ function send_sms(string $type = SMS_USER_REGIETER, string $mobile = '0000000000
         $value = array_shift($code);
     }
 
-    $sms = new \app\common\third\AliSms($data);
+    $sms    = new \app\common\third\AliSms($data);
+    $status = $sms->request($mobile, false);
 
-    return $sms->request($mobile, false);
+    return $status ? true : false;
 }
 
 /**

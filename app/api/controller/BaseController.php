@@ -54,6 +54,7 @@ class BaseController implements IReflectionDef
     protected static $_input = false; //请求参数
 
     public static $_uname = false; //用户名
+    public static $_uinfo = false; //用户信息 - SSO
     public static $_token = false; //用户令牌
 
     /**
