@@ -27,7 +27,7 @@ class UserManageController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name',
                 null,
@@ -59,16 +59,12 @@ class UserManageController extends BaseController
                 'mobile',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $userName  = strtolower(self::$_input['user_name']);
-        $full_name = self::$_input['full_name'];
-        $sex       = self::$_input['sex'];
-        $phone     = self::$_input['phone'];
-        $company   = self::$_input['company'];
+        $userName  = strtolower($param['user_name']);
+        $full_name = $param['full_name'];
+        $sex       = $param['sex'];
+        $phone     = $param['phone'];
+        $company   = $param['company'];
 
         (new UserLogic())->Add($userName, $full_name, $phone, $sex, $company);
 
@@ -90,7 +86,7 @@ class UserManageController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name',
                 null,
@@ -104,12 +100,8 @@ class UserManageController extends BaseController
                 'in:' . YES . ',' . NO,
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new UserLogic())->Disable_Or_Enables(strtolower(self::$_input['user_name']), !(self::$_input['enable'] == YES));
+        (new UserLogic())->Disable_Or_Enables(strtolower($param['user_name']), !($param['enable'] == YES));
 
         return $this->R();
     }
@@ -125,7 +117,7 @@ class UserManageController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name_key',
                 null,
@@ -186,14 +178,10 @@ class UserManageController extends BaseController
                 'between:1,50',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        list($list, $count) = (new UserLogic())->GetList(self::$_input['user_name_key'],
-            self::$_input['full_name_key'], self::$_input['phone_key'], self::$_input['sex'],
-            self::$_input['st'], self::$_input['et'], true, self::$_input['order_field'], self::$_input['is_asc'], self::$_input['page'], self::$_input['per_page']);
+        list($list, $count) = (new UserLogic())->GetList($param['user_name_key'],
+            $param['full_name_key'], $param['phone_key'], $param['sex'],
+            $param['st'], $param['et'], true, $param['order_field'], $param['is_asc'], $param['page'], $param['per_page']);
 
         return $this->R(null, null, $list, $count);
     }
@@ -212,7 +200,7 @@ class UserManageController extends BaseController
         }
 
         //**参数接收**
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'check',
                 YES,
@@ -220,13 +208,9 @@ class UserManageController extends BaseController
                 'in:' . YES . ',' . NO,
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $check = self::$_input['check'];
-        $rtn   = (new UserLogic())->BatchModel(self::$_input['check']);
+        $check = $param['check'];
+        $rtn   = (new UserLogic())->BatchModel($param['check']);
 
         if ($check == YES)
             return $this->R(null, null, ['exist' => $rtn]);
@@ -244,13 +228,23 @@ class UserManageController extends BaseController
             return $this->R();
         }
 
-        @set_time_limit(60 * 10);// 执行时间延长
+        //**参数接收**
+        $param = $this->I([
+            [
+                'type',
+                YES,
+                'd',
+                'in:' . YES . ',' . NO,
+            ],
+        ]);
+
+        @set_time_limit(60 * 30);// 执行时间延长
 
         //接收上传的文件存入临时文件目录下
         $fid        = filename_microtime();
         $fileSize   = 1024 * 1024 * 2;
         $sourceFile = UploadLogic::UploadSimple($fid,
-            ['file' => "fileSize:$fileSize|fileExt:xls"],
+            ['file' => "fileSize:$fileSize|fileExt:xls,xlsx"],
             DIR_TEMPS_USERS);
 
         if (!$sourceFile)
@@ -258,7 +252,7 @@ class UserManageController extends BaseController
             return $this->R();
         }
 
-        $rst = (new UserLogic())->BatchUpload($sourceFile);
+        $rst = (new UserLogic())->BatchUpload($sourceFile, $param['type']);
 
         //**数据返回**
         return $this->R(null, null, $rst);
@@ -275,7 +269,7 @@ class UserManageController extends BaseController
         }
 
         //**参数接收**
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'fid',
                 null,
@@ -289,15 +283,13 @@ class UserManageController extends BaseController
                 'in:' . YES . ',' . NO,
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $check = self::$_input['check'];
-        $rtn   = (new UserLogic())->GetReport(self::$_input['fid'], self::$_input['check']);
+        $check = $param['check'];
+        $rtn   = (new UserLogic())->GetReport($param['fid'], $param['check']);
 
         if (YES == $check)
+        {
             return $this->R(null, null, ['exist' => $rtn]);
+        }
     }
 }

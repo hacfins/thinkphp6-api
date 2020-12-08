@@ -29,7 +29,7 @@ class UserController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'phone',
                 null,
@@ -49,14 +49,10 @@ class UserController extends BaseController
                 'require|length:6,20|alphaDash2',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $phone       = self::$_input['phone'];
-        $verify_code = self::$_input['verify_code'];
-        $pwd         = self::$_input['pwd'];
+        $phone       = $param['phone'];
+        $verify_code = $param['verify_code'];
+        $pwd         = $param['pwd'];
 
         $userLogic = new UserLoginLogic();
 
@@ -87,7 +83,7 @@ class UserController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'email',
                 null,
@@ -107,14 +103,10 @@ class UserController extends BaseController
                 'require|length:6,20|alphaDash2',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $email       = strtolower(self::$_input['email']);
-        $verify_code = self::$_input['verify_code'];
-        $pwd         = self::$_input['pwd'];
+        $email       = strtolower($param['email']);
+        $verify_code = $param['verify_code'];
+        $pwd         = $param['pwd'];
 
         $userLogic = new UserLoginLogic();
 
@@ -145,7 +137,7 @@ class UserController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'old_pwd',
                 null,
@@ -159,12 +151,8 @@ class UserController extends BaseController
                 'require|length:6,20|alphaDash2',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new UserLogic())->ModifyPwd(self::$_input['old_pwd'], self::$_input['new_pwd']);
+        (new UserLogic())->ModifyPwd($param['old_pwd'], $param['new_pwd']);
 
         return $this->R();
     }
@@ -215,7 +203,7 @@ class UserController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'nick_name',
                 null,
@@ -259,15 +247,11 @@ class UserController extends BaseController
                 'max:128'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
         //Todo:adcode 校验
-        (new UserLogic())->ModifyInfo(self::$_uname, self::$_input['nick_name'], self::$_input['full_name'],
-            self::$_input['sex'], self::$_input['birthday'], self::$_input['adcode'], self::$_input['company'],
-            self::$_input['description']);
+        (new UserLogic())->ModifyInfo(self::$_uname, $param['nick_name'], $param['full_name'],
+            $param['sex'], $param['birthday'], $param['adcode'], $param['company'],
+            $param['description']);
 
         return $this->R();
     }
@@ -283,7 +267,7 @@ class UserController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name',
                 null,
@@ -351,15 +335,11 @@ class UserController extends BaseController
                 'mobile',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
         //Todo:adcode 校验
-        (new UserLogic())->ModifyInfo(self::$_input['user_name'], self::$_input['nick_name'], self::$_input['full_name'],
-            self::$_input['sex'], self::$_input['birthday'], self::$_input['adcode'], self::$_input['company'],
-            self::$_input['description'], self::$_input['new_pwd'], self::$_input['email'], self::$_input['phone'],YES);
+        (new UserLogic())->ModifyInfo($param['user_name'], $param['nick_name'], $param['full_name'],
+            $param['sex'], $param['birthday'], $param['adcode'], $param['company'],
+            $param['description'], $param['new_pwd'], $param['email'], $param['phone'],YES);
 
         return $this->R();
     }
@@ -398,7 +378,7 @@ class UserController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'img',
                 null,
@@ -430,13 +410,9 @@ class UserController extends BaseController
                 'number|>=:0',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $imgPath = (new UserLogic())->ModifyAvator(self::$_input['img'], self::$_input['width'], self::$_input['height'],
-            self::$_input['sx'], self::$_input['sy']);
+        $imgPath = (new UserLogic())->ModifyAvator($param['img'], $param['width'], $param['height'],
+            $param['sx'], $param['sy']);
 
         return $this->R(null, null, ['img' => $imgPath ? $imgPath : '']);
     }
@@ -482,7 +458,7 @@ class UserController extends BaseController
     public function Others_Info()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name',
                 null,
@@ -490,11 +466,8 @@ class UserController extends BaseController
                 'require|length:2,20'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
-        $info = (new UserLogic())->GetOthersInfo(self::$_input['user_name']);
+
+        $info = (new UserLogic())->GetOthersInfo($param['user_name']);
 
         //**数据返回**
         if ($info)
@@ -509,7 +482,7 @@ class UserController extends BaseController
     public function Info_Ex()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name',
                 null,
@@ -517,12 +490,8 @@ class UserController extends BaseController
                 'require|length:4,20000|alphaPrefix',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $userNames = ids2array(self::$_input['user_name']);
+        $userNames = ids2array($param['user_name']);
         $userLogic = (new UserLogic());
 
         $rtn = [];

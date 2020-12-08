@@ -20,6 +20,22 @@ interface IReflectionDef
                 'Auth',
                 'UserRole',
             ],
+            //-location
+            'location' => [
+                'Area',
+            ],
+            //-passport
+            'passport'  => [
+                'Common',
+                'User',
+                'Wxlogin',
+            ],
+            //-user
+            'user'    => [
+                'User',
+                'UserLog',
+                'UserManage'
+            ],
         ]
     ];
 
@@ -46,5 +62,6 @@ interface IReflectionDef
         'api-passport.wxlogin.jssdksign',
         'api-passport.wxlogin.baseinfo',
         'api-passport.wxlogin.userinfo',
+        'api-passport.user.login_verify'
     ];
 }

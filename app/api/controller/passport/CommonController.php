@@ -24,7 +24,7 @@ class CommonController extends BaseController
     public function ExistName()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name',
                 null,
@@ -32,12 +32,8 @@ class CommonController extends BaseController
                 'require|alphaPrefix|alphaDash|length:4,20',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $rst = (new UserLoginLogic())->ExistName(strtolower(self::$_input['user_name']));
+        $rst = (new UserLoginLogic())->ExistName(strtolower($param['user_name']));
 
         return $this->R(null, null, ['exist' => $rst]);
     }
@@ -48,7 +44,7 @@ class CommonController extends BaseController
     public function ExistEmail()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'email',
                 null,
@@ -68,12 +64,8 @@ class CommonController extends BaseController
                 'alphaPrefix|alphaDash|length:4,20',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $rst = (new UserLoginLogic())->ExistEmail(strtolower(self::$_input['email']), self::$_input['except'], self::$_input['user_name']);
+        $rst = (new UserLoginLogic())->ExistEmail(strtolower($param['email']), $param['except'], $param['user_name']);
 
         return $this->R(null, null, ['exist' => $rst]);
     }
@@ -84,7 +76,7 @@ class CommonController extends BaseController
     public function ExistPhone()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'phone',
                 null,
@@ -104,12 +96,8 @@ class CommonController extends BaseController
                 'alphaPrefix|alphaDash|length:4,20',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $rst = (new UserLoginLogic())->ExistPhone(self::$_input['phone'], self::$_input['except'], self::$_input['user_name']);
+        $rst = (new UserLoginLogic())->ExistPhone($param['phone'], $param['except'], $param['user_name']);
 
         return $this->R(null, null, ['exist' => $rst]);
     }
@@ -121,7 +109,7 @@ class CommonController extends BaseController
     public function Captcha()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'len',
                 4,
@@ -129,12 +117,8 @@ class CommonController extends BaseController
                 'between:4,6',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        return (new UserLoginLogic())->Captcha(self::$_input['len']);
+        return (new UserLoginLogic())->Captcha($param['len']);
     }
 
     /**
@@ -143,7 +127,7 @@ class CommonController extends BaseController
     public function CheckCaptcha()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'captcha_code',
                 null,
@@ -151,12 +135,8 @@ class CommonController extends BaseController
                 'require|length:4,6',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $checked = (new UserLoginLogic())->CheckCaptcha(self::$_input['captcha_code']);
+        $checked = (new UserLoginLogic())->CheckCaptcha($param['captcha_code']);
 
         return $this->R($checked ? \EC::SUCCESS : \EC::CAPTCHA_ERROR);
     }
@@ -167,7 +147,7 @@ class CommonController extends BaseController
     public function Verify()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'name', //手机号 | 邮箱
                 null,
@@ -181,13 +161,9 @@ class CommonController extends BaseController
                 'in:' . SESSIONID_VERIFY_SET,
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
         //Todo: 防止攻击
-        (new UserLoginLogic())->Verify(strtolower(self::$_input['name']), self::$_input['type']);
+        (new UserLoginLogic())->Verify(strtolower($param['name']), $param['type']);
 
         return $this->R();
     }
@@ -198,7 +174,7 @@ class CommonController extends BaseController
     public function CheckVerify()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'name', //手机号 | 邮箱
                 null,
@@ -218,14 +194,10 @@ class CommonController extends BaseController
                 'require|length:4',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
         //检测校验码
-        $checked = (new UserLoginLogic())->CheckVerify(strtolower(self::$_input['name']), self::$_input['type'],
-            self::$_input['verify_code'], false, true);
+        $checked = (new UserLoginLogic())->CheckVerify(strtolower($param['name']), $param['type'],
+            $param['verify_code'], false, true);
 
         return $this->R($checked ? \EC::SUCCESS : \EC::VERIFYCODE_ERROR);
     }

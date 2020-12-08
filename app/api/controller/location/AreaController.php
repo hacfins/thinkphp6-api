@@ -36,7 +36,7 @@ class AreaController extends BaseController
     public function GetAreaList()
     {
         //**数据接收**
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'city_code',
                 null,
@@ -44,12 +44,8 @@ class AreaController extends BaseController
                 'require|>:0'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $areasList = (new LocationLogic())->GetAreaList(self::$_input['city_code']);
+        $areasList = (new LocationLogic())->GetAreaList($param['city_code']);
 
         //**数据返回**
         if ($areasList)

@@ -4,10 +4,10 @@ namespace app\api\controller\passport;
 
 use app\api\controller\BaseController;
 use app\api\logic\
-{UserLoginLogic, WxLoginLogic};
+{UserLoginLogic, SnsLoginLogic};
 
 /**
- * 微信登录、绑定
+ * 第三方登录、绑定
  */
 class WxloginController extends BaseController
 {
@@ -23,7 +23,7 @@ class WxloginController extends BaseController
     public function JsSDKSign()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'url',
                 null,
@@ -32,28 +32,34 @@ class WxloginController extends BaseController
             ],
         ]);
 
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
-
-        $options = (new WxLoginLogic())->JsSDKSign(self::$_input['url']);
+        $options = (new SnsLoginLogic(USEROAUTHS_TYPE_WEIXIN))
+            ->JsSDKSign($param['url']);
 
         //**数据返回**
         if ($options)
+        {
             return $this->R(null, null, $options);
+        }
 
         return $this->R();
     }
 
     //==================================================== 登录绑定 ======================================================
-
     /**
      * 检测二维码
      */
     public function CheckQrCode()
     {
-        $qrcode = (new WxLoginLogic())->CheckQrCode();
+        //数据接收
+        $param = $this->I([
+            [
+                'type',
+                USEROAUTHS_TYPE_WEIXIN,
+                's',
+            ],
+        ]);
+
+        $qrcode = (new SnsLoginLogic($param['type']))->CheckQrCode();
 
         //**数据返回**
         if ($qrcode)
@@ -68,7 +74,12 @@ class WxloginController extends BaseController
     public function BindLogin()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
+            [
+                'type',
+                USEROAUTHS_TYPE_WEIXIN,
+                's',
+            ],
             [
                 'user_name',
                 null,
@@ -88,12 +99,9 @@ class WxloginController extends BaseController
                 'require|min:1',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new WxLoginLogic())->BindLogin(strtolower(self::$_input['user_name']), self::$_input['pwd'], self::$_input['key']);
+        (new SnsLoginLogic($param['type']))->BindLogin(strtolower($param['user_name']),
+            $param['pwd'], $param['key']);
 
         return $this->R();
     }
@@ -105,7 +113,12 @@ class WxloginController extends BaseController
     public function Register_Bind()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
+            [
+                'type',
+                USEROAUTHS_TYPE_WEIXIN,
+                's',
+            ],
             [
                 'user_name',
                 null,
@@ -137,16 +150,12 @@ class WxloginController extends BaseController
                 'require|min:1',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $userName    = strtolower(self::$_input['user_name']);
-        $pwd         = self::$_input['pwd'];
-        $mobile      = self::$_input['phone'];
-        $verify_code = self::$_input['verify_code'];
-        $key         = self::$_input['key'];
+        $userName    = strtolower($param['user_name']);
+        $pwd         = $param['pwd'];
+        $mobile      = $param['phone'];
+        $verify_code = $param['verify_code'];
+        $key         = $param['key'];
 
         //1.0 检测校验码
         $userLogic = new UserLoginLogic();
@@ -163,8 +172,8 @@ class WxloginController extends BaseController
             return $this->R();
         }
 
-        //3.0 微信绑定
-        $rtn = (new WxLoginLogic())->BindLogin($userName, $pwd, $key);
+        //3.0 绑定
+        $rtn = (new SnsLoginLogic($param['type']))->BindLogin($userName, $pwd, $key);
         if (!$rtn)
         {
             return $this->R();
@@ -187,7 +196,16 @@ class WxloginController extends BaseController
             return $this->R();
         }
 
-        (new WxLoginLogic())->DelLogin(self::$_uname);
+        //数据接收
+        $param = $this->I([
+            [
+                'type',
+                USEROAUTHS_TYPE_WEIXIN,
+                's',
+            ],
+        ]);
+
+        (new SnsLoginLogic($param['type']))->DelLogin(self::$_uname);
 
         return $this->R();
     }
@@ -202,19 +220,33 @@ class WxloginController extends BaseController
             return $this->R();
         }
 
-        $rtn = (new WxLoginLogic())->IsBind(self::$_uname);
+        //数据接收
+        $param = $this->I([
+            [
+                'type',
+                USEROAUTHS_TYPE_WEIXIN,
+                's',
+            ],
+        ]);
+
+        $rtn = (new SnsLoginLogic($param['type']))->IsBind(self::$_uname);
 
         return $this->R(null, null, ['exist' => $rtn ? YES : NO]);
     }
 
-    //==================================================== 微信跳转 ======================================================
+    //==================================================== 跳转 ======================================================
     /**
      * 1.0 网页授权URL - snsapi_base (仅可以获取到粉丝的openid)
      */
     public function BaseRedirect()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
+            [
+                'type',
+                USEROAUTHS_TYPE_WEIXIN,
+                's',
+            ],
             [
                 'auth_url',
                 null,
@@ -234,14 +266,11 @@ class WxloginController extends BaseController
                 'number|in:' . YES . ',' . NO,
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $isPic = self::$_input['is_pic'];
+        $isPic = $param['is_pic'];
 
-        $redirectURL = (new WxLoginLogic())->BaseRedirect(self::$_input['auth_url'], self::$_input['is_login'],
+        $redirectURL = (new SnsLoginLogic($param['type']))->BaseRedirect($param['auth_url'],
+            $param['is_login'],
             $isPic);
         if(YES != $isPic)
         {
@@ -257,11 +286,22 @@ class WxloginController extends BaseController
      */
     public function BaseInfo($key = '', $isLogin=YES)
     {
-        $redirctURL = (new WxLoginLogic())->BaseInfo($key, $isLogin);
+        //数据接收
+        $param = $this->I([
+            [
+                'type',
+                USEROAUTHS_TYPE_WEIXIN,
+                's',
+            ],
+        ]);
+
+        $redirctURL = (new SnsLoginLogic($param['type']))->BaseInfo($key, $isLogin);
         if(false !== $redirctURL)
         {
             return redirect($redirctURL);
         }
+
+        return $this->R();
     }
 
     /**
@@ -270,10 +310,21 @@ class WxloginController extends BaseController
      */
     public function UserInfo($key = '')
     {
-        $redirctURL = (new WxLoginLogic())->UserInfo($key);
+        //数据接收
+        $param = $this->I([
+            [
+                'type',
+                USEROAUTHS_TYPE_WEIXIN,
+                's',
+            ],
+        ]);
+
+        $redirctURL = (new SnsLoginLogic($param['type']))->UserInfo($key);
         if(false !== $redirctURL)
         {
             return redirect($redirctURL);
         }
+
+        return $this->R();
     }
 }

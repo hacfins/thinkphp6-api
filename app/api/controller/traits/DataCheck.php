@@ -2,7 +2,8 @@
 
 namespace app\api\controller\traits;
 
-//use app\api\logic\UserLoginLogic;
+use app\api\logic\UserLoginLogic;
+use app\api\logic\WebsiteLogic;
 use app\common\facade\Os;
 use app\common\validate\ValidateEx;
 use think\facade\Cache;
@@ -70,7 +71,8 @@ trait DataCheck
      */
     protected function Single_Login(string $userName, string $userToken)
     {
-        $singleLogin = yaconf('limit.single_login', YES);
+        $SwitchInfo  = (new WebsiteLogic())->Switch_GetInfo();
+        $singleLogin = $SwitchInfo['single_login'] ?? YES;
 
         $request = request();
         if (YES == $singleLogin)
@@ -103,8 +105,8 @@ trait DataCheck
                         Cache::set($cacheTokenKey, $userToken, CACHE_TIME_DAY);
 
                         //剔除其他终端，使其离线
-                        //$aot = new UserLoginLogic();
-                        //$aot->OffLine($userName, $osType, $userToken);
+                        $aot = new UserLoginLogic();
+                        $aot->OffLine($userName, $osType, $userToken);
                     }
                 }
             }
@@ -179,14 +181,13 @@ trait DataCheck
 
             }
 
-            self::$_input = $params;
+            $params = $params;
             if ($toVali)
             {
                 //当参数校验有误时，会抛出异常
                 $this->validate($params, $rule);
             }
 
-            //返回正确的参数
             return $params;
         }
         catch (\Throwable $e)

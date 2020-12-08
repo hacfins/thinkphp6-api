@@ -27,7 +27,7 @@ class UserRoleController extends BaseController
             return $this->R();
         }
 
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_ids',
                 null,
@@ -41,12 +41,8 @@ class UserRoleController extends BaseController
                 'require|length:1,20'
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new UserRoleLogic())->Modify(self::$_input['user_name'], self::$_input['role_ids']);
+        (new UserRoleLogic())->Modify($param['user_name'], $param['role_ids']);
 
         return $this->R();
     }
@@ -61,7 +57,7 @@ class UserRoleController extends BaseController
             return $this->R();
         }
 
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_id',
                 null,
@@ -123,13 +119,9 @@ class UserRoleController extends BaseController
                 'between:1,' . DEF_PAGE_MAXSIZE
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $users = (new UserRoleLogic())->GetList(self::$_input['role_id'], self::$_input['user_name_key'], self::$_input['nick_name_key'],
-            self::$_input['full_name_key'], self::$_input['user_type'], self::$_input['all'] == YES, self::$_input['order_field'], self::$_input['is_asc'], self::$_input['page'], self::$_input['per_page']);
+        $users = (new UserRoleLogic())->GetList($param['role_id'], $param['user_name_key'], $param['nick_name_key'],
+            $param['full_name_key'], $param['user_type'], $param['all'] == YES, $param['order_field'], $param['is_asc'], $param['page'], $param['per_page']);
 
         if ($users)
             return $this->R(null, null, $users[0], $users[1]);
