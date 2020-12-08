@@ -15,6 +15,16 @@ class MultiCurl
     private $concurrency = 25;
     private $nextCurlId = 0;
 
+    private $rateLimit = null;
+    private $rateLimitEnabled = false;
+    private $rateLimitReached = false;
+    private $maxRequests = null;
+    private $interval = null;
+    private $intervalSeconds = null;
+    private $unit = null;
+    private $currentStartTime = null;
+    private $currentRequestCount = 0;
+
     private $beforeSendCallback = null;
     private $successCallback = null;
     private $errorCallback = null;
@@ -553,9 +563,21 @@ class MultiCurl
      */
     public function setHeaders($headers)
     {
-        foreach ($headers as $key => $value) {
-            $this->headers[$key] = $value;
+        if (ArrayUtil::isArrayAssoc($headers)) {
+            foreach ($headers as $key => $value) {
+                $key = trim($key);
+                $value = trim($value);
+                $this->headers[$key] = $value;
+            }
+        } else {
+            foreach ($headers as $header) {
+                list($key, $value) = explode(':', $header, 2);
+                $key = trim($key);
+                $value = trim($value);
+                $this->headers[$key] = $value;
+            }
         }
+
         $this->updateHeaders();
     }
 
@@ -714,6 +736,58 @@ class MultiCurl
     }
 
     /**
+     * Set Rate Limit
+     *
+     * @access public
+     * @param  $rate_limit string (e.g. "60/1m").
+     * @throws \UnexpectedValueException
+     */
+    public function setRateLimit($rate_limit)
+    {
+        $rate_limit_pattern =
+            '/' .       // delimiter
+            '^' .       // assert start
+            '(\d+)' .   // digit(s)
+            '\/' .      // slash
+            '(\d+)?' .  // digit(s), optional
+            '(s|m|h)' . // unit, s for seconds, m for minutes, h for hours
+            '$' .       // assert end
+            '/' .       // delimiter
+            'i' .       // case-insensitive matches
+            '';
+        if (!preg_match($rate_limit_pattern, $rate_limit, $matches)) {
+            throw new \UnexpectedValueException(
+                'rate limit must be formatted as $max_requests/$interval(s|m|h) ' .
+                '(e.g. "60/1m" for a maximum of 60 requests per 1 minute)'
+            );
+        }
+
+        $max_requests = (int)$matches['1'];
+        if ($matches['2'] === '') {
+            $interval = 1;
+        } else {
+            $interval = (int)$matches['2'];
+        }
+        $unit = strtolower($matches['3']);
+
+        // Convert interval to seconds based on unit.
+        if ($unit === 's') {
+            $interval_seconds = $interval * 1;
+        } elseif ($unit === 'm') {
+            $interval_seconds = $interval * 60;
+        } elseif ($unit === 'h') {
+            $interval_seconds = $interval * 3600;
+        }
+
+        $this->rateLimit = $max_requests . '/' . $interval . $unit;
+        $this->rateLimitEnabled = true;
+        $this->maxRequests = $max_requests;
+        $this->interval = $interval;
+        $this->intervalSeconds = $interval_seconds;
+        $this->unit = $unit;
+    }
+
+    /**
      * Set Referer
      *
      * @access public
@@ -766,6 +840,16 @@ class MultiCurl
     }
 
     /**
+     * Disable Timeout
+     *
+     * @access public
+     */
+    public function disableTimeout()
+    {
+        $this->setTimeout(null);
+    }
+
+    /**
      * Set Url
      *
      * @access public
@@ -788,9 +872,24 @@ class MultiCurl
     }
 
     /**
+     * Set Interface
+     *
+     * The name of the outgoing network interface to use.
+     * This can be an interface name, an IP address or a host name.
+     *
+     * @access public
+     * @param  $interface
+     */
+    public function setInterface($interface)
+    {
+        $this->setOpt(CURLOPT_INTERFACE, $interface);
+    }
+
+    /**
      * Start
      *
      * @access public
+     * @throws \ErrorException
      */
     public function start()
     {
@@ -799,17 +898,21 @@ class MultiCurl
         }
 
         $this->isStarted = true;
-
-        $concurrency = $this->concurrency;
-        if ($concurrency > count($this->curls)) {
-            $concurrency = count($this->curls);
-        }
-
-        for ($i = 0; $i < $concurrency; $i++) {
-            $this->initHandle(array_shift($this->curls));
-        }
+        $this->currentStartTime = microtime(true);
+        $this->currentRequestCount = 0;
 
         do {
+            while (count($this->curls) &&
+                count($this->activeCurls) < $this->concurrency &&
+                (!$this->rateLimitEnabled || $this->hasRequestQuota())
+            ) {
+                $this->initHandle();
+            }
+
+            if ($this->rateLimitEnabled && !count($this->activeCurls) && !$this->hasRequestQuota()) {
+                $this->waitUntilRequestQuotaAvailable();
+            }
+
             // Wait for activity on any curl_multi connection when curl_multi_select (libcurl) fails to correctly block.
             // https://bugs.php.net/bug.php?id=63411
             if (curl_multi_select($this->multiCurl) === -1) {
@@ -818,7 +921,7 @@ class MultiCurl
 
             curl_multi_exec($this->multiCurl, $active);
 
-            while (!($info_array = curl_multi_info_read($this->multiCurl)) === false) {
+            while (($info_array = curl_multi_info_read($this->multiCurl)) !== false) {
                 if ($info_array['msg'] === CURLMSG_DONE) {
                     foreach ($this->activeCurls as $key => $curl) {
                         if ($curl->curl === $info_array['handle']) {
@@ -844,10 +947,7 @@ class MultiCurl
                                 // Remove completed instance from active curls.
                                 unset($this->activeCurls[$key]);
 
-                                // Start new requests before removing the handle of the completed one.
-                                while (count($this->curls) >= 1 && count($this->activeCurls) < $this->concurrency) {
-                                    $this->initHandle(array_shift($this->curls));
-                                }
+                                // Remove handle of the completed instance.
                                 curl_multi_remove_handle($this->multiCurl, $curl->curl);
 
                                 // Clean up completed instance.
@@ -859,11 +959,7 @@ class MultiCurl
                     }
                 }
             }
-
-            if (!$active) {
-                $active = count($this->activeCurls);
-            }
-        } while ($active > 0);
+        } while ($active || count($this->activeCurls) || count($this->curls));
 
         $this->isStarted = false;
     }
@@ -969,8 +1065,17 @@ class MultiCurl
      * @param  $curl
      * @throws \ErrorException
      */
-    private function initHandle($curl)
+    private function initHandle()
     {
+        $curl = array_shift($this->curls);
+        if ($curl === null) {
+            return;
+        }
+
+        // Add instance to list of active curls.
+        $this->currentRequestCount += 1;
+        $this->activeCurls[$curl->id] = $curl;
+
         // Set callbacks if not already individually set.
         if ($curl->beforeSendCallback === null) {
             $curl->beforeSend($this->beforeSendCallback);
@@ -1009,7 +1114,56 @@ class MultiCurl
             throw new \ErrorException('cURL multi add handle error: ' . curl_multi_strerror($curlm_error_code));
         }
 
-        $this->activeCurls[$curl->id] = $curl;
         $curl->call($curl->beforeSendCallback);
+    }
+
+    /**
+     * Has Request Quota
+     *
+     * Checks if there is any available quota to make additional requests while
+     * rate limiting is enabled.
+     *
+     * @access private
+     */
+    private function hasRequestQuota()
+    {
+        // Calculate if there's request quota since ratelimiting is enabled.
+        if ($this->rateLimitEnabled) {
+            // Determine if the limit of requests per interval has been reached.
+            if ($this->currentRequestCount >= $this->maxRequests) {
+                $elapsed_seconds = microtime(true) - $this->currentStartTime;
+                if ($elapsed_seconds <= $this->intervalSeconds) {
+                    $this->rateLimitReached = true;
+                    return false;
+                } elseif ($this->rateLimitReached) {
+                    $this->rateLimitReached = false;
+                    $this->currentStartTime = microtime(true);
+                    $this->currentRequestCount = 0;
+                }
+            }
+
+            return true;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Wait Until Request Quota Available
+     *
+     * Waits until there is available request quota available based on the rate limit.
+     *
+     * @access private
+     */
+    private function waitUntilRequestQuotaAvailable()
+    {
+        $sleep_until = $this->currentStartTime + $this->intervalSeconds;
+        $sleep_seconds = $sleep_until - microtime(true);
+
+        // Avoid using time_sleep_until() as it appears to be less precise and not sleep long enough.
+        usleep($sleep_seconds * 1000000);
+
+        $this->currentStartTime = microtime(true);
+        $this->currentRequestCount = 0;
     }
 }

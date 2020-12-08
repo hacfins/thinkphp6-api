@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/github/release/php-curl-class/php-curl-class.svg)](https://github.com/php-curl-class/php-curl-class/releases/)
 [![](https://img.shields.io/github/license/php-curl-class/php-curl-class.svg)](https://github.com/php-curl-class/php-curl-class/blob/master/LICENSE)
-[![](https://img.shields.io/travis/php-curl-class/php-curl-class.svg)](https://travis-ci.org/php-curl-class/php-curl-class/)
+[![](https://img.shields.io/travis/php-curl-class/php-curl-class.svg)](https://travis-ci.com/github/php-curl-class/php-curl-class/)
 [![](https://img.shields.io/packagist/dt/php-curl-class/php-curl-class.svg)](https://github.com/php-curl-class/php-curl-class/releases/)
 
 PHP Curl Class makes it easy to send HTTP requests and integrate with web APIs.
@@ -43,7 +43,7 @@ More examples are available under [/examples](https://github.com/php-curl-class/
 ```php
 require __DIR__ . '/vendor/autoload.php';
 
-use \Curl\Curl;
+use Curl\Curl;
 
 $curl = new Curl();
 $curl->get('https://www.example.com/');
@@ -156,7 +156,7 @@ curl_close($curl->curl);
 ```php
 require __DIR__ . '/vendor/autoload.php';
 
-use \Curl\MultiCurl;
+use Curl\MultiCurl;
 
 // Requests in parallel with callback functions.
 $multi_curl = new MultiCurl();
@@ -202,6 +202,7 @@ Curl::call()
 Curl::close()
 Curl::complete($callback)
 Curl::delete($url, $query_parameters = array(), $data = array())
+Curl::disableTimeout()
 Curl::download($url, $mixed_filename)
 Curl::error($callback)
 Curl::exec($ch = null)
@@ -268,6 +269,7 @@ Curl::setDigestAuthentication($username, $password = '')
 Curl::setFile($file)
 Curl::setHeader($key, $value)
 Curl::setHeaders($headers)
+Curl::setInterface($interface)
 Curl::setJsonDecoder($mixed)
 Curl::setMaxFilesize($bytes)
 Curl::setOpt($option, $value)
@@ -304,6 +306,7 @@ MultiCurl::addSearch($url, $data = array())
 MultiCurl::beforeSend($callback)
 MultiCurl::close()
 MultiCurl::complete($callback)
+MultiCurl::disableTimeout()
 MultiCurl::error($callback)
 MultiCurl::getOpt($option)
 MultiCurl::removeHeader($key)
@@ -319,6 +322,7 @@ MultiCurl::setDigestAuthentication($username, $password = '')
 MultiCurl::setFile($file)
 MultiCurl::setHeader($key, $value)
 MultiCurl::setHeaders($headers)
+MultiCurl::setInterface($interface)
 MultiCurl::setJsonDecoder($mixed)
 MultiCurl::setOpt($option, $value)
 MultiCurl::setOpts($options)
@@ -329,6 +333,7 @@ MultiCurl::setProxyAuth($auth)
 MultiCurl::setProxyTunnel($tunnel = true)
 MultiCurl::setProxyType($type)
 MultiCurl::setRange($range)
+MultiCurl::setRateLimit($rate_limit)
 MultiCurl::setReferer($referer)
 MultiCurl::setReferrer($referrer)
 MultiCurl::setRetry($mixed)
