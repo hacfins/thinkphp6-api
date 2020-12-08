@@ -177,21 +177,13 @@ class Logs extends Base
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function GetList($userKey = null, int $op_type = null, string $st = null, string $et = null, string $fullNameKey = null,
-        string $orderField = null, int $isASC = YES, int $page = DEF_PAGE, int $pageSize = DEF_PAGE_SIZE)
+    public function GetList(
+        $userKey = null, int $op_type = null, string $st = null, string $et = null, string $fullNameKey = null, string $orderField = null, int $isASC = YES,
+        int $page = DEF_PAGE, int $pageSize = DEF_PAGE_SIZE)
     {
-        $map  = [];
-        $join = [];
+        $map   = [];
+        $join  = [];
         $order = [];
-
-        if (isset($orderField))
-        {
-            $sortType = $isASC == YES ? 'ASC' : 'DESC';
-            if ($orderField == 'create_time')
-            {
-                $order['lg.id']          = $sortType;
-            }
-        }
 
         if (isset($userKey))
         {
@@ -203,7 +195,7 @@ class Logs extends Base
                 $map[] = [
                     'lg.user_name',
                     'like',
-                    "%{$userKey}%"
+                    "%{$userKey}%",
                 ];
             }
         }
@@ -219,7 +211,7 @@ class Logs extends Base
         if (isset($fullNameKey))
         {
             $join[] = [
-                'user u', 'u.user_name = lg.user_name', 'left'
+                'user u', 'u.user_name = lg.user_name', 'left',
             ];
 
             //对 '_' 进行转义
@@ -228,8 +220,17 @@ class Logs extends Base
             $map[] = [
                 'u.full_name',
                 'like',
-                "%{$fullNameKey}%"
+                "%{$fullNameKey}%",
             ];
+        }
+
+        if (isset($orderField))
+        {
+            $sortType = $isASC == YES ? 'ASC' : 'DESC';
+            if ($orderField == 'create_time')
+            {
+                $order['lg.id'] = $sortType;
+            }
         }
 
         $count = $this->where($map)
@@ -245,7 +246,7 @@ class Logs extends Base
         {
             $list = $this->distinct(true)
                 ->field([
-                    'lg.op_id'
+                    'lg.op_id',
                 ])
                 ->where($map)
                 ->alias('lg')

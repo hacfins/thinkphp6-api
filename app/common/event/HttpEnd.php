@@ -129,6 +129,14 @@ class HttpEnd
             {
                 $logArr['op_comment'] = $respData['msg'] ?? '';
             }
+            else
+            {
+                global $g_logs_comment;
+                if($g_logs_comment)
+                {
+                    $logArr['op_comment'] = $g_logs_comment;
+                }
+            }
 
             //3.1 use time(微秒)
             $logArr['use_time'] = Debug::getUseTime() * 1000000;

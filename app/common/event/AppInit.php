@@ -7,6 +7,7 @@ use think\facade\Request;
 $GLOBALS['g_logs_insert'] = false;
 $GLOBALS['g_logs_opid']   = guid();
 $GLOBALS['g_logs_optype'] = LOGOP_OP_TYPE_ADD;
+$GLOBALS['g_logs_comment'] = '';
 
 //定义异步回调
 $GLOBALS['g_callback'] = [];
@@ -25,9 +26,9 @@ class AppInit
         $webScan = new \Webscan();
         if ($webScan->Check())
         {
-            return \think\Response::create(['code' => \EC::PARAM_SAFEERROR,
+            \think\Response::create(['code' => \EC::PARAM_SAFEERROR,
                                      'msg'  => \EC::GetMsg(\EC::PARAM_SAFEERROR)],
-                'jsonp', \EC::API_ERR);
+                'jsonp', \EC::API_ERR)->send();
         }
 
         // ***关闭原生错误提示, 错误信息可以从tp5的日志中查看

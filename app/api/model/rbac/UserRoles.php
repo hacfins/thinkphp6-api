@@ -125,8 +125,31 @@ class UserRoles extends Base
         }
         else
         {
-            return $this->where(['role_id' => $roleId])
-                ->value('user_name', false);
+            $map  = [];
+            $join = [];
+
+            $map[] = [
+                'ur.role_id',
+                '=',
+                $roleId,
+            ];
+
+            $join[] = [
+                'user u',
+                'ur.user_name = u.user_name',
+                'left',
+            ];
+
+            $map[] = [
+                'u.delete_time',
+                'NULL',
+                null,
+            ];
+
+            return $this->alias('ur')
+                ->where($map)
+                ->joins($join)
+                ->value('ur.user_name', false);
         }
     }
 

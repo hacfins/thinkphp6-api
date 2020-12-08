@@ -1082,6 +1082,29 @@ function validate_telphone($tel)
     return true;
 }
 
+/**
+ * 判断IP在不在IP网段内
+ *
+ * @param string $ip      要查询的IP地址
+ * @param string $network IP段 192.168.123.0/24
+ *
+ * @return bool
+ */
+function ip_in_network(string $ip, string $network)
+{
+    $netArr        = explode('/', $network);
+    $network_start = (double)(sprintf("%u", ip2long($netArr[0])));
+    $network_len   = pow(2, 32 - ($netArr[1] ?? 32));
+    $network_end   = $network_start + $network_len - 1;
+
+    $ip = (double)(sprintf("%u", ip2long($ip)));
+    if ($ip >= $network_start && $ip <= $network_end)
+    {
+        return true;
+    }
+
+    return false;
+}
 
 // +----------------------------------------------------------------------
 // | Third Party
