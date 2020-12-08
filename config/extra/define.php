@@ -45,6 +45,7 @@ define('IMPORTUSERS_FILE', ini_get('yaconf.directory') . DIRECTORY_SEPARATOR . '
 //-临时文件
 define('DIR_TEMPS', yaconf('storage.dir') . 'temps' . DIRECTORY_SEPARATOR);
 define('DIR_TEMPS_IMGS', DIR_TEMPS . 'imgs' . DIRECTORY_SEPARATOR); //-图片的base64编码生成的临时文件
+define('DIR_TEMPS_USERS', DIR_TEMPS . 'users' . DIRECTORY_SEPARATOR);//-导入用户的临时存储目录
 
 //-图像文件
 define('DIR_IMGS', ROOT_PATH . 'uploads' . DIRECTORY_SEPARATOR);
@@ -159,7 +160,9 @@ define('CACHE_TIME_SQL_DAY', 86400);                    //缓存时间 - 24小�
 define('SESSIONID_VERIFY_REGISTER', 1);                 //注册
 define('SESSIONID_VERIFY_MODIFY', 2);                   //修改
 define('SESSIONID_VERIFY_FINDPWD', 3);                  //找回密码
-define('SESSIONID_VERIFY_SET', SESSIONID_VERIFY_REGISTER . ',' . SESSIONID_VERIFY_MODIFY . ',' . SESSIONID_VERIFY_FINDPWD);
+define('SESSIONID_VERIFY_LOGIN', 4); //登录
+define('SESSIONID_VERIFY_SET', SESSIONID_VERIFY_REGISTER . ',' . SESSIONID_VERIFY_MODIFY .
+    ',' . SESSIONID_VERIFY_FINDPWD . ',' . SESSIONID_VERIFY_LOGIN);
 
 //-请勿擅自改动!!!
 define('OTHER_LOGIN', 'other_');                        //第三方登录
@@ -209,6 +212,8 @@ define('USER_NAME_SYS',    '系统'); //系统的用户编号
 define('USER_NAME_UNKOWN', '匿名'); //匿名用户的编号
 define('USER_NAME_ADMIN',  'admin'); //超级管理员
 
+define('DINGTALK_PREFIX', 'd');//钉钉用户名前缀
+
 define('USER_SEX_UNKOWN', 0); //保密
 define('USER_SEX_MAN',   1); //男
 define('USER_SEX_WOMEN', 2); //女
@@ -233,8 +238,9 @@ define('USERAUTH_TYPE_EMAIL', 3); // 邮箱
 
 //===================================================== UserOauths =====================================================
 define('USEROAUTHS_TYPE_WEIXIN', 1); //微信
+define('USEROAUTHS_TYPE_DINGTALK', 2); //钉钉
 
-define('USEROAUTHS_TYPE_SET', USEROAUTHS_TYPE_WEIXIN);
+define('USEROAUTHS_TYPE_SET', USEROAUTHS_TYPE_WEIXIN . ',' . USEROAUTHS_TYPE_DINGTALK);
 
 //===================================================== UserTokens =====================================================
 define('USERTOKENS_STATUE_ENABLED', 1);  //可用

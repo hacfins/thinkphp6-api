@@ -8,6 +8,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use app\common\traits\Instance;
+use function GuzzleHttp\Psr7\str;
 
 /*
  * 用户基本信息表
@@ -481,12 +482,14 @@ class User extends Base
     /***
      * 读取文件中的数据
      *
-     * @param $sourceFile
-     * @param $readFirstRow
+     * @param string $sourceFile
+     * @param int    $startRowNo 有效数据的开始行号
+     * @param int    $colMaxNum  总列表
      *
      * @return array
+     * @throws \Exception
      */
-    public function ReadFile($sourceFile)
+    public function ReadFile(string $sourceFile, int $startRowNo = 2, int $colMaxNum = 6)
     {
         try
         {
@@ -499,16 +502,17 @@ class User extends Base
             $colNum = count($sheet->getColumnDimensions());
 
             //A：用户名|B：姓名|C：手机号|D：邮箱|E：性别|F：机构名称
-            if ($colNum < 6)
+            //A：用户名|B：姓名|C：手机号|H：邮箱|D：机构名称
+            if ($colNum < $colMaxNum)
             {
-                E(\EC::FILE_COLS_ERROR, '表格必须为6列（A：用户名|B：姓名|C：手机号|D：邮箱|E：性别|F：机构名称）', false);
+                E(\EC::FILE_COLS_ERROR, "表格必须为{$colNum}列（A：用户名|B：姓名|C：手机号等）", false);
             }
 
             $rowNum = $sheet->getHighestRow();
 
             //2.0 开始读取数据
             $maxCol = $sheet->getHighestColumn();
-            $rows   = $sheet->rangeToArray('A2:' . $maxCol . $rowNum, '');
+            $rows   = $sheet->rangeToArray("A{$startRowNo}:" . $maxCol . $rowNum, '');
 
             //释放资源
             $excelObj->disconnectWorksheets();
@@ -534,6 +538,14 @@ class User extends Base
      *
      * @param               $rows
      *
+     * @param int           $startRowNo
+     * @param int           $userNameIndex
+     * @param int           $nameIndex
+     * @param int           $phoneIndex
+     * @param int           $emailIndex
+     * @param               $sexIndex
+     * @param int           $companyIndex
+     *
      * @return array 不合法的数据
      *      return [
      *      'errName'     => $errName,
@@ -543,48 +555,48 @@ class User extends Base
      *      'errCompany'  => $errCompany,
      *      ];
      */
-    public function CheckValue(&$rows)
+    public function CheckValue(&$rows, int $startRowNo,
+        int $userNameIndex, int $nameIndex, int $phoneIndex, int $emailIndex, $sexIndex, int $companyIndex)
     {
         $errNone = $errName = $errFullName = $errPhone = $errEmail = $errCompany = [];
-
         foreach ($rows as $key => &$row)
         {
-            $name     = strtolower(trim($row[0]));
-            $fullName = strtolower(trim($row[1]));
-            $phone    = trim($row[2]);
-            $email    = strtolower(trim($row[3]));
-            $sex      = trim($row[4]);
-            $company  = trim($row[5]);
+            $name     = strtolower(trim($row[$userNameIndex]));
+            $fullName = trim($row[$nameIndex]);
+            $phone    = trim($row[$phoneIndex]);
+            $email    = strtolower(trim($row[$emailIndex]));
+            $sex      = isset($row[$sexIndex]) ? trim($row[$sexIndex]) : '';
+            $company  = trim($row[$companyIndex]);
 
             //删除空行
             if ($name == '' && $fullName == '' && $phone == '' && $email == '' && $sex == '' && $company == '')
             {
-                $errNone[] = $key + 2;
+                $errNone[] = $key + $startRowNo;
                 continue;
             }
 
             //检查用户名
             if (!validate_username($name))
             {
-                $errName[] = $key + 2;
+                $errName[] = $key + $startRowNo;
             }
 
             //检查姓名
             if (($fullName != '') && (mb_strlen($fullName) > 20 || mb_strlen($fullName) < 2))
             {
-                $errFullName[] = $key + 2;
+                $errFullName[] = $key + $startRowNo;
             }
 
             //检查手机号
             if (($phone != '') && !validate_phone($phone))
             {
-                $errPhone[] = $key + 2;
+                $errPhone[] = $key + $startRowNo;
             }
 
             //检查邮箱
             if (($email != '') && !validate_email($email))
             {
-                $errEmail[] = $key + 2;
+                $errEmail[] = $key + $startRowNo;
             }
 
             //检查性别
@@ -601,12 +613,12 @@ class User extends Base
                 $sex = USER_SEX_UNKOWN;
             }
 
-            $row[0] = $name;
-            $row[1] = $fullName;
-            $row[2] = $phone;
-            $row[3] = $email;
-            $row[4] = $sex;
-            $row[5] = $company;
+            $row[$userNameIndex] = $name;
+            $row[$nameIndex]     = $fullName;
+            $row[$phoneIndex]    = $phone;
+            $row[$emailIndex]    = $email;
+            $row[$sexIndex]      = $sex;
+            $row[$companyIndex]  = $company;
         }
 
         return [
@@ -621,10 +633,11 @@ class User extends Base
     /***
      * 删除错误的数据
      *
-     * @param $rows
-     * @param $errArray
+     * @param       $rows
+     * @param int   $startRowNo
+     * @param array $errArray
      */
-    public function DeleteErrData(&$rows, array $errArray)
+    public function DeleteErrData(&$rows, int $startRowNo, array $errArray)
     {
         // 合并错误类型
         $all = [];
@@ -644,7 +657,7 @@ class User extends Base
             // 删除错误数据
             foreach ($all as $v)
             {
-                unset($rows[$v - 2]);
+                unset($rows[$v - $startRowNo]);
             }
         }
     }
@@ -654,13 +667,14 @@ class User extends Base
      *
      * @param string $sourceFile xls文件路径
      * @param array  $errArray   错误信息
+     * @param        $startRowNo
      * @param int    $startPCol  内容写入的起始列
      *
      * @return mixed
+     * @throws \Exception
      * @author jiangjiaxiong
-     *
      */
-    public function BatchReport($sourceFile, $errArray, $startPCol)
+    public function BatchReport($sourceFile, $errArray, $startRowNo, $startPCol)
     {
         try
         {
@@ -735,7 +749,7 @@ class User extends Base
             //s1.3 写入结果（成功还是失败）
             $total      = $sheet->getHighestRow();
             $errRowsKey = array_keys($errRows);
-            for ($i = 2; $i <= $total; $i++)
+            for ($i = $startRowNo; $i <= $total; $i++)
             {
                 if (in_array($i, $errRowsKey))
                 {
@@ -765,9 +779,31 @@ class User extends Base
                     ->setVertical(Alignment::VERTICAL_CENTER);
             }
 
+            //设置属性，防止null
+            $properties = $excelObj->getProperties();
+            if(!$properties->getCreator())
+            {
+                $properties->setCreator("华科飞扬");
+            }
+            if(!$properties->getLastModifiedBy())
+            {
+                $properties->setLastModifiedBy("华科飞扬");
+            }
+            $excelObj->setProperties($properties);
+            
             /////////////////////////////////////////////////////////////////////////////////////////////
             //实例化Excel写入类
-            $writer = IOFactory::createWriter($excelObj, 'Xls');
+            //获取后缀 .xlsx .xls
+            $ext = pathinfo($sourceFile, PATHINFO_EXTENSION);
+            if(strtolower($ext) == 'xls')
+            {
+                $writerType = 'Xls';
+            }
+            else
+            {
+                $writerType = 'Xlsx';
+            }
+            $writer = IOFactory::createWriter($excelObj, $writerType);
             $writer->save($sourceFile);
 
             return $sourceFile;

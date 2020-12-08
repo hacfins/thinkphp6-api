@@ -3,7 +3,6 @@
 namespace app\api\controller\traits;
 
 use app\api\logic\UserLoginLogic;
-use app\api\logic\WebsiteLogic;
 use app\common\facade\Os;
 use app\common\validate\ValidateEx;
 use think\facade\Cache;
@@ -71,8 +70,7 @@ trait DataCheck
      */
     protected function Single_Login(string $userName, string $userToken)
     {
-        $SwitchInfo  = (new WebsiteLogic())->Switch_GetInfo();
-        $singleLogin = $SwitchInfo['single_login'] ?? YES;
+        $singleLogin = yaconf('limit.single_login', YES);
 
         $request = request();
         if (YES == $singleLogin)

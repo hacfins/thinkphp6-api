@@ -7,7 +7,6 @@ use think\facade\
 {Cache, Cookie, Request
 };
 
-use Wechat\Loader;
 use app\common\facade\
 {
     Browser
@@ -1109,30 +1108,17 @@ function ip_in_network(string $ip, string $network)
 // +----------------------------------------------------------------------
 // | Third Party
 // +----------------------------------------------------------------------
-/**
- * 获取微信操作对象
- *
- * 可以理解为单例-工厂模式
- *
- * @param string $type
- *
- * @return Wechat.$type
- */
-function & load_wechat($type = '')
+//钉钉的原始用户Id转为合法的平台用户名
+function dingtalk_name($userName)
 {
-    static $wechat = array();
-    $index = md5(strtolower($type));
-
-    if (!isset($wechat[$index]))
+    //钉钉的用户Id号可能有 - ,此时需要特殊处理
+    $userName = str_replace('-', '', $userName);
+    if(strlen($userName) > 19)
     {
-        //公众号配置文件
-        $options              = yaconf('openlogin.weixin');
-        $options['cachepath'] = runtime_path() . 'log/' . 'data/';
-
-        $wechat[$index] = Loader::get($type, $options);
+        $userName = substr($userName, 1, 19);
     }
 
-    return $wechat[$index];
+    return DINGTALK_PREFIX . $userName;
 }
 
 /**
