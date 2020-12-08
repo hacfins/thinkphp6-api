@@ -1079,7 +1079,16 @@ abstract class PDOConnection extends Connection
             $key       = $cacheItem->getKey();
 
             if ($this->cache->has($key)) {
-                return $this->cache->get($key);
+
+                //Todo: Hacfin
+                //修复在高并发下，返回值为null的bug
+                $result = $this->cache->get($key);
+
+                if (false !== $result) {
+                    return $result;
+                }
+
+                //return $this->cache->get($key);
             }
         }
 
@@ -1164,7 +1173,15 @@ abstract class PDOConnection extends Connection
             $name      = $cacheItem->getKey();
 
             if ($this->cache->has($name)) {
-                return $this->cache->get($name);
+                //Todo: Hacfin
+                //修复在高并发下，返回值为null的bug
+                $result = $this->cache->get($name);
+
+                if (false !== $result) {
+                    return $result;
+                }
+
+                //return $this->cache->get($name);
             }
         }
 

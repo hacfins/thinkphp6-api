@@ -106,7 +106,19 @@ class Frame extends AbstractMediaType
                 '-f', $outputFormat
             );
         }
-        
+
+        //Todo: Hacfin
+        //修改 -ss 时间戳，生成缩略图失败的bug
+        $timeCode =  (string) $this->timecode;
+        if('00:00:00.00' == $timeCode)
+        {
+            $keys = array_merge(array_keys($commands, $timeCode, true), array_keys($commands, '-ss', true));
+            foreach ($keys as $key)
+            {
+                unset($commands[$key]);
+            }
+        }
+
         if($returnBase64) {
             array_push($commands, "-");
         }
