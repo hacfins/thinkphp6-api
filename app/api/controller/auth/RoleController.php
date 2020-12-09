@@ -31,7 +31,7 @@ class RoleController extends BaseController
         }
 
         //接收参数
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_name',
                 null,
@@ -45,12 +45,8 @@ class RoleController extends BaseController
                 'length:0,128',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $role_id = (new RoleLogic())->Add(self::$_input['role_name'], ROLE_TYPE_GENERAL, self::$_input['description']);
+        $role_id = (new RoleLogic())->Add($param['role_name'], ROLE_TYPE_GENERAL, $param['description']);
 
         return $this->R(null, null, ['role_id' => $role_id ? $role_id : '']);
     }
@@ -66,7 +62,7 @@ class RoleController extends BaseController
         }
 
         //接收参数
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_id',
                 null,
@@ -86,12 +82,8 @@ class RoleController extends BaseController
                 'length:0,128'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new RoleLogic())->Modify(self::$_input['role_id'], self::$_input['role_name'], null, self::$_input['description']);
+        (new RoleLogic())->Modify($param['role_id'], $param['role_name'], null, $param['description']);
 
         return $this->R();
     }
@@ -107,7 +99,7 @@ class RoleController extends BaseController
         }
 
         //接收参数
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'id',
                 null,
@@ -121,12 +113,8 @@ class RoleController extends BaseController
                 'require',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new RoleLogic())->MoveTo(self::$_input['id'], self::$_input['des_id']);
+        (new RoleLogic())->MoveTo($param['id'], $param['des_id']);
 
         return $this->R();
     }
@@ -141,7 +129,7 @@ class RoleController extends BaseController
             return $this->R();
         }
 
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_name',
                 null,
@@ -149,12 +137,8 @@ class RoleController extends BaseController
                 'require|length:1,20',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $exist = (new RoleLogic())->ExistName(self::$_input['role_name']);
+        $exist = (new RoleLogic())->ExistName($param['role_name']);
 
         return $this->R(null, null, ['exist' => $exist]);
     }
@@ -169,7 +153,7 @@ class RoleController extends BaseController
             return $this->R();
         }
 
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_id',
                 null,
@@ -177,12 +161,8 @@ class RoleController extends BaseController
                 'require',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new RoleLogic())->Del(self::$_input['role_id']);
+        (new RoleLogic())->Del($param['role_id']);
 
         return $this->R();
     }
@@ -197,7 +177,7 @@ class RoleController extends BaseController
             return $this->R();
         }
 
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_id',
                 null,
@@ -205,12 +185,8 @@ class RoleController extends BaseController
                 'require',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $info = (new RoleLogic())->GetInfo(self::$_input['role_id']);
+        $info = (new RoleLogic())->GetInfo($param['role_id']);
 
         return $this->R(null, null, $info ? $info : []);
     }
@@ -225,7 +201,7 @@ class RoleController extends BaseController
             return $this->R();
         }
 
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_type',
                 null,
@@ -257,12 +233,8 @@ class RoleController extends BaseController
                 'between:1,' . DEF_PAGE_MAXSIZE
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $list = (new RoleLogic())->GetList(self::$_input['role_type'], self::$_input['order_field'], self::$_input['is_asc'], self::$_input['page'], self::$_input['page_size']);
+        $list = (new RoleLogic())->GetList($param['role_type'], $param['order_field'], $param['is_asc'], $param['page'], $param['page_size']);
 
         return $list ? $this->R(null, null, $list[0], $list[1]) : $this->R();
     }

@@ -33,7 +33,7 @@ class UserLogController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'st',
                 null,
@@ -71,13 +71,9 @@ class UserLogController extends BaseController
                 'between:1,50'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        list($list, $count) = (new UserLogLogic())->GetList(self::$_uname, null, self::$_input['st'], self::$_input['et'], self::$_input['order_field'], self::$_input['is_asc'],
-            self::$_input['page'], self::$_input['per_page']);
+        list($list, $count) = (new UserLogLogic())->GetList(self::$_uname, null, $param['st'], $param['et'], $param['order_field'], $param['is_asc'],
+            $param['page'], $param['per_page']);
 
         if($count > 0)
         {
@@ -101,7 +97,7 @@ class UserLogController extends BaseController
         }
 
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'st',
                 null,
@@ -151,13 +147,9 @@ class UserLogController extends BaseController
                 'between:1,50'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        list($list, $count) = (new UserLogLogic())->Get_List(self::$_input['user_name_key'], null, self::$_input['st'], self::$_input['et'],
-            self::$_input['full_name_key'], self::$_input['order_field'], self::$_input['is_asc'], self::$_input['page'], self::$_input['per_page']);
+        list($list, $count) = (new UserLogLogic())->Get_List($param['user_name_key'], null, $param['st'], $param['et'],
+            $param['full_name_key'], $param['order_field'], $param['is_asc'], $param['page'], $param['per_page']);
 
         return $this->R(null, null, $list, $count);
     }
@@ -175,7 +167,7 @@ class UserLogController extends BaseController
         }
 
         //**数据接收**
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'op_id',
                 null,
@@ -183,12 +175,8 @@ class UserLogController extends BaseController
                 'require|length:32'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $info = (new UserLogLogic())->Info(self::$_input['op_id']);
+        $info = (new UserLogLogic())->Info($param['op_id']);
 
         //**数据返回**
         if ($info)

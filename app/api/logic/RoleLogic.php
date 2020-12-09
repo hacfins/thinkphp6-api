@@ -252,23 +252,4 @@ class RoleLogic extends BaseLogic
 
         return $ur->CheckUserExist($role_id);
     }
-
-    /**
-     * 检测角色是否存在
-     *
-     * @param string $roleId
-     *
-     * @return bool
-     */
-    protected function CheckRoleExist(string $roleId)
-    {
-        $role = Role::instance();
-
-        if (!$role->CheckExist([$roleId]))
-        {
-            return false;
-        }
-
-        return true;
-    }
 }

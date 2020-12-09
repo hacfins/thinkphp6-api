@@ -50,21 +50,22 @@ class CAPI implements IReflectionDef
         if (!$limit)
             $limit = Session::getid();
 
-        $key    = CACHE_USER_LIMIT . $limit;
-        $keyCnt = $key . 'cnt';
+        $key = CACHE_USER_LIMIT . $limit;
+        $now = (int)microtime(true);
+        $duration      = 60;
+        $waitResetSecs = $duration - $now % $duration;     // 距离下次重置还有n秒时间
 
         // Create the key if it doesn't exist
-        $count = Cache::get($keyCnt);
-        if (!$count)
-        {
-            Cache::set($keyCnt, 0, 60);
-        }
+        $curRequests = Cache::get($key, 0);
 
-        // Increment by 1
-        if (Cache::inc($keyCnt) > SWITCH_API_LIMIT_TIMES) // Fail if minute requests exceeded
+        // Fail if minute requests exceeded
+        if ($curRequests > SWITCH_API_LIMIT_TIMES)
         {
             E(\EC::ACCESSTOKEN_LIMIT_ERROR, null, false);
         }
+
+        // 允许访问 Increment by 1
+        Cache::set($key, $curRequests + 1, $waitResetSecs);
     }
 
     /**
@@ -90,23 +91,34 @@ class CAPI implements IReflectionDef
                     return true;
 
                 //不需要API授权的地址
-                if (in_array($ip, yaconf('auth.exclude_ips')))
-                    return true;
+                foreach (yaconf('auth.exclude_ips') as $netWork)
+                {
+                    if(ip_in_network($ip, $netWork))
+                    {
+                        return true;
+                    }
+                }
             }
             else //第三方
             {
                 //同台机器
                 $ip = $request->ip();
-                if (in_array($ip, yaconf('auth.exclude_ips')))
-                    return true;
+                foreach (yaconf('auth.exclude_ips') as $netWork)
+                {
+                    if(ip_in_network($ip, $netWork))
+                    {
+                        return true;
+                    }
+                }
             }
 
-            //微信平台，移除认证
+            //第三方平台，移除认证
             $ruleName = MODULE_NAME . '-' . CONTROLLER_NAME . '.' . ACTION_NAME;
             if (in_array($ruleName, [
                 'api-passport.wxlogin.baseinfo',
                 'api-passport.wxlogin.userinfo',
-                'api-passport.user.open_url']))
+                'api-passport.user.open_url',
+                'api-user.user_manage.batch_report']))
             {
                 return true;
             }

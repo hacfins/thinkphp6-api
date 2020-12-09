@@ -23,7 +23,7 @@ class UserController extends BaseController
     public function Login()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'name', //用户名、手机号、邮箱
                 null,
@@ -43,18 +43,65 @@ class UserController extends BaseController
                 'in:' . YES . ',' . NO,
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $data = (new UserLoginLogic())->Login(self::$_input['name'], self::$_input['pwd'], self::$_input['freelogin']);
+        $data = (new UserLoginLogic())->Login($param['name'], $param['pwd'], $param['freelogin']);
 
         //单设备登录
         if($data)
         {
             $this->Single_Login($data['name'], $data['sg']);
         }
+
+        return $this->R(null, null, $data);
+    }
+
+    /**
+     * 登录 -- 手机号校验码
+     */
+    public function Login_Verify()
+    {
+        $param = $this->I([
+            [
+                'name', //手机号、邮箱
+                null,
+                's',
+                'require|min:1',
+            ],
+            [
+                'verify_code',
+                null,
+                's',
+                'length:4',
+            ],
+            [
+                'freelogin', //30天免登录
+                NO,
+                'd',
+                'in:' . YES . ',' . NO,
+            ],
+        ]);
+
+        $userLogic = new UserLoginLogic();
+
+        //检测校验码
+        $checked = $userLogic->CheckVerify($param['name'], SESSIONID_VERIFY_LOGIN, $param['verify_code'],
+            false, true);
+        if (!$checked)
+        {
+            return $this->R(\EC::VERIFYCODE_ERROR);
+        }
+
+        $data = (new UserLoginLogic())->Login_Verify($param['name'], $param['freelogin']);
+
+        //单设备登录
+        if($data)
+        {
+            $this->Single_Login($data['name'], $data['sg']);
+        }
+
+        //删除校验码
+        if($userLogic::$_error_code == \EC::SUCCESS)
+            $userLogic->DelVerify($param['name'], SESSIONID_VERIFY_LOGIN);
 
         return $this->R(null, null, $data);
     }
@@ -84,7 +131,7 @@ class UserController extends BaseController
     public function Open_Url()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'name', //用户名、手机号、邮箱
                 null,
@@ -104,12 +151,8 @@ class UserController extends BaseController
                 'require|url'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $data = (new UserLoginLogic())->OpenUrl(self::$_input['name'], self::$_input['sg']);
+        $data = (new UserLoginLogic())->OpenUrl($param['name'], $param['sg']);
 
         //单设备登录
         if($data)
@@ -118,7 +161,7 @@ class UserController extends BaseController
         }
 
         //重定向浏览器
-        $redirctURL = self::$_input['redirect_uri'];
+        $redirctURL = $param['redirect_uri'];
         if(false !== $redirctURL)
         {
             return redirect($redirctURL);
@@ -132,7 +175,7 @@ class UserController extends BaseController
     public function Register()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name',
                 null,
@@ -158,15 +201,11 @@ class UserController extends BaseController
                 'length:4',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $userName    = strtolower(self::$_input['user_name']);
-        $pwd         = self::$_input['pwd'];
-        $mobile      = self::$_input['phone'];
-        $verify_code = self::$_input['verify_code'];
+        $userName    = strtolower($param['user_name']);
+        $pwd         = $param['pwd'];
+        $mobile      = $param['phone'];
+        $verify_code = $param['verify_code'];
 
         $userLogic = new UserLoginLogic();
 
@@ -197,7 +236,7 @@ class UserController extends BaseController
     public function Register_Email()
     {
         //数据接收
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'user_name',
                 null,
@@ -223,15 +262,11 @@ class UserController extends BaseController
                 'length:4',
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $userName    = strtolower(self::$_input['user_name']);
-        $pwd         = self::$_input['pwd'];
-        $email       = strtolower(self::$_input['email']);
-        $verify_code = self::$_input['verify_code'];
+        $userName    = strtolower($param['user_name']);
+        $pwd         = $param['pwd'];
+        $email       = strtolower($param['email']);
+        $verify_code = $param['verify_code'];
 
         // 检测校验码
         $userLogic = new UserLoginLogic();
@@ -261,7 +296,7 @@ class UserController extends BaseController
      */
     public function FindPwd_Email()
     {
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'email',
                 null,
@@ -281,14 +316,10 @@ class UserController extends BaseController
                 'require|length:6,20|alphaDash2',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $new_pwd     = self::$_input['new_pwd'];
-        $email       = strtolower(self::$_input['email']);
-        $verify_code = self::$_input['verify_code'];
+        $new_pwd     = $param['new_pwd'];
+        $email       = strtolower($param['email']);
+        $verify_code = $param['verify_code'];
 
         $userLogic = new UserLoginLogic();
 
@@ -313,7 +344,7 @@ class UserController extends BaseController
      */
     public function FindPwd_Phone()
     {
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'phone',
                 null,
@@ -333,14 +364,10 @@ class UserController extends BaseController
                 'require|length:6,20|alphaDash2',
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $new_pwd     = self::$_input['new_pwd'];
-        $phone       = self::$_input['phone'];
-        $verify_code = self::$_input['verify_code'];
+        $new_pwd     = $param['new_pwd'];
+        $phone       = $param['phone'];
+        $verify_code = $param['verify_code'];
 
         $userLogic = new UserLoginLogic();
 

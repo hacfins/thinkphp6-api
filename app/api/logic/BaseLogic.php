@@ -2,7 +2,10 @@
 namespace app\api\logic;
 
 use app\api\logic\traits\ImgProcess;
-use app\api\model\rbac\User;
+use app\api\model\
+{
+    rbac\User
+};
 
 /*
  * 业务逻辑基类

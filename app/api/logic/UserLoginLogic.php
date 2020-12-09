@@ -3,9 +3,7 @@
 namespace app\api\logic;
 
 use app\api\logic\traits\
-{
-    Captcha, UserOp
-};
+{Captcha, UserOp};
 use app\api\model\
 {
     log\UserLogs, rbac\UserRoles, rbac\UserTokens, rbac\User, rbac\UserAuth
@@ -47,6 +45,12 @@ class UserLoginLogic extends BaseLogic
 
             //2.0 验证密码
             $loginInfo = (UserAuth::instance())->GetInfo($userName);
+            if (!$loginInfo)
+            {
+                static::$_error_code = \EC::USER_NOTEXIST_ERROR;
+
+                return false;
+            }
             if (!$this->Check_Pwd($loginInfo['pwd'], $pwd))
             {
                 static::$_error_code = \EC::USER_PASSWD_ERROR;
@@ -55,6 +59,67 @@ class UserLoginLogic extends BaseLogic
             }
 
             //3.0 用户登录相关操作处理
+            $token = $this->Login_Login($userName, $bFreelogin);
+
+            return [
+                'sg'   => $token,
+                'name' => $userName
+            ];
+        }
+        catch (\Throwable $e)
+        {
+            static::$_error_code = $e->getCode();
+            static::$_error_msg  = $e->getMessage();
+
+            return false;
+        }
+    }
+
+    /**
+     * 登录 - 校验码
+     *
+     * @param string $name 手机 | 邮箱
+     * @param int    $bFreelogin
+     *
+     * @return array | bool
+     */
+    public function Login_Verify(string $name, int $bFreelogin = YES)
+    {
+        try
+        {
+            //1.0 检测用户名
+            $userName = $this->CheckName($name);
+            if (!$userName)
+            {
+                if (validate_phone($name))
+                {
+                    $fullName = '新用户' . substr($name,-4);
+                    $userInst = User::instance();
+                    do
+                    {
+                        $userName = 'a' . \PhpCrypt::Random_Pwd(15) . substr($name,-4);
+                        if (!$userInst->CheckExist($userName))
+                        {
+                            break;
+                        }
+                    } while (true);
+
+                    $userName = strtolower($userName);
+                    $rtn      = $this->Register($userName, DEF_USER_PWD, null, $name, $fullName);
+                    if (false === $rtn)
+                    {
+                        return false;
+                    }
+
+                    static::$_error_code = \EC::SUCCESS;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            //2.0 用户登录相关操作处理
             $token = $this->Login_Login($userName, $bFreelogin);
 
             return [
@@ -242,14 +307,18 @@ class UserLoginLogic extends BaseLogic
     /**
      * 注册
      *
-     * @param string $name
-     * @param string $email
-     * @param string $phone
-     * @param string $pwd
+     * @param string      $name
+     * @param string      $pwd
+     *
+     * @param string|null $email
+     * @param string|null $phone
+     * @param string|null $nickName
+     * @param string      $avator
      *
      * @return false|string
      */
-    public function Register(string $name, string $pwd, string $email = null, string $phone = null)
+    public static function Register(string $name, string $pwd, string $email = null, string $phone = null,
+        string $nickName = null, string $avator = '')
     {
         $user  = User::instance();
         $uAuth = UserAuth::instance();
@@ -300,7 +369,7 @@ class UserLoginLogic extends BaseLogic
         try
         {
             //添加用户
-            $user->Add($name);
+            $user->Add($name, $nickName, '', USER_SEX_UNKOWN, $avator);
             UserAuth::instance()->Add($name, $pwd, $phone, $email);
             if ($name != USER_NAME_ADMIN)
             {
@@ -309,8 +378,6 @@ class UserLoginLogic extends BaseLogic
             }
 
             //添加用户统计-日志
-            $this->Lg_AddUser($name);
-
             Db::commit();
         }
         catch (\Throwable $e)
@@ -441,6 +508,11 @@ class UserLoginLogic extends BaseLogic
             //3.0 验证密码
             $userAuth  = UserAuth::instance();
             $loginInfo = $userAuth->GetInfo($userName);
+            if (!$loginInfo)
+            {
+                static::$_error_code = \EC::USER_NOTEXIST_ERROR;
+                return false;
+            }
 
             // 判断新旧密码是否相同
             if ($this->Check_Pwd($loginInfo['pwd'], $new_pwd))

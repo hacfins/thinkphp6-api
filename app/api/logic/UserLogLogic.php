@@ -1,11 +1,10 @@
 <?php
-
 namespace app\api\logic;
-
 use string\P4String;
+
 use app\api\model\
 {
-    log\LogDetails, log\Logs, rbac\User
+    log\LogDetails, log\Logs, log\UserLogs, rbac\User
 };
 
 /**
@@ -13,6 +12,36 @@ use app\api\model\
  */
 class UserLogLogic extends BaseLogic
 {
+    /**
+     *  用户操作日志列表
+     *
+     * @param string|null $user_name
+     * @param int|null    $op_type
+     * @param string|null $st
+     * @param string|null $et
+     * @param int         $page
+     * @param int         $pageSize
+     *
+     * @return array|bool
+     */
+    public function GetList(string $user_name=null, int $op_type=null, string $st = null, string $et = null, string $order_field = null, int $is_asc = YES,
+        int $page = DEF_PAGE, int $pageSize = DEF_PAGE_SIZE)
+    {
+        try
+        {
+            $user = UserLogs::instance();
+            $ops  = $user->GetList($user_name, $op_type, $st, $et, $order_field, $is_asc, $page, $pageSize);
+
+            return $ops;
+        }
+        catch(\Throwable $e)
+        {
+            static::$_error_code = $e->getCode();
+            static::$_error_msg  = $e->getMessage();
+            return false;
+        }
+    }
+
     /**
      * 添加日志
      *
@@ -47,7 +76,7 @@ class UserLogLogic extends BaseLogic
      *
      * @return array|false
      */
-    public function GetList(
+    public function Get_List(
         string $userNameKey = null, int $op_type = null, string $st = null, string $et = null,
         string $fullNameKey = null, string $order_field = null, int $is_asc = YES, int $page = DEF_PAGE, int $pageSize = DEF_PAGE_SIZE)
     {

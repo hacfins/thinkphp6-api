@@ -10,6 +10,7 @@ use app\api\model\
     location\AreaProvince,
     log\UserLogs
 };
+use think\facade\Request;
 use app\api\model\rbac\
 {
     UserRoles, UserTokens, User, UserAuth
@@ -69,7 +70,7 @@ class UserLogic extends BaseLogic
         {
             //创建用户
             $user->Add($name, null, $full_name, $sex, '', 0, $company);
-            UserAuth::instance()->Add($name, $name . DEF_USER_PWD, $phone);
+            UserAuth::instance()->Add($name, DEF_USER_PWD, $phone);
             if ($name != USER_NAME_ADMIN)
             {
                 //2.0 设置角色为普通用户
@@ -77,7 +78,7 @@ class UserLogic extends BaseLogic
             }
 
             //添加用户统计-日志
-            $this->Lg_AddUser($name);
+            self::Lg_AddUser($name);
 
             Db::commit();
         }
@@ -183,6 +184,12 @@ class UserLogic extends BaseLogic
         {
             $userAuth = UserAuth::instance();
             $userInfo = $userAuth->GetInfo($userName, false);
+            if (!$userInfo)
+            {
+                static::$_error_code = \EC::USER_NOTEXIST_ERROR;
+
+                return false;
+            }
             $pwd      = $userInfo['pwd'];
 
             // 判断老密码是否正确
@@ -257,7 +264,6 @@ class UserLogic extends BaseLogic
         try
         {
             $userAuth = UserAuth::instance();
-            $userInfo = $userAuth->GetInfo($userName, false);
 
             if ($userName == $newPwd)
             {
@@ -332,6 +338,13 @@ class UserLogic extends BaseLogic
             //3.0 验证密码
             $loginInfo = $userAuth->GetInfo($userName);
 
+            if(!$loginInfo)
+            {
+                static::$_error_code = \EC::USER_NOTEXIST_ERROR;
+
+                return false;
+            }
+
             //验证密码
             if ($pwd)
             {
@@ -405,6 +418,13 @@ class UserLogic extends BaseLogic
             //3.0 验证密码
             $loginInfo = $userAuth->GetInfo($userName);
 
+            if(!$loginInfo)
+            {
+                static::$_error_code = \EC::USER_NOTEXIST_ERROR;
+
+                return false;
+            }
+
             //验证密码
             if ($pwd)
             {
@@ -453,7 +473,6 @@ class UserLogic extends BaseLogic
         }
 
         Db::startTrans();
-        $rows = 0;
         try
         {
             foreach ($user_names as $name)
@@ -574,6 +593,12 @@ class UserLogic extends BaseLogic
         }
 
         $userAuthInfo = UserAuth::instance()->GetInfo($user_name);
+        if (!$userAuthInfo)
+        {
+            static::$_error_code = \EC::USER_NOTEXIST_ERROR;
+
+            return [];
+        }
         unset($userAuthInfo['pwd']);
 
         return array_merge($userInfo, $userAuthInfo);
@@ -593,7 +618,6 @@ class UserLogic extends BaseLogic
     {
         //用户信息
         $user = User::instance();
-
         $userInfo = $user->GetInfo($user_name);
 
         //1.0 判断信息是否获取成功
@@ -698,7 +722,10 @@ class UserLogic extends BaseLogic
 
                     //手机号-邮箱
                     $userAuthInfo = UserAuth::instance()->GetInfo($user['user_name']);
-                    unset($userAuthInfo['pwd']);
+                    if ($userAuthInfo)
+                    {
+                        unset($userAuthInfo['pwd']);
+                    }
 
                     $user = array_merge($user, $userAuthInfo);
                 }
@@ -721,6 +748,9 @@ class UserLogic extends BaseLogic
     //==================================================== 批量导入 ======================================================
     /**
      * 批量导入-下载批量导入模板
+     * @param int $bCheck
+     *
+     * @return bool|string
      */
     public function BatchModel($bCheck = YES)
     {
@@ -741,34 +771,81 @@ class UserLogic extends BaseLogic
 
     /**
      * 批量导入-下载批量导入用户的结果报表
+     *
+     * @param     $sourceFile
+     * @param int $type 1,普通导入；2，钉钉导入
+     *
+     * @return array|false
      */
-    public function BatchUpload($sourceFile)
+    public function BatchUpload($sourceFile, $type=YES)
     {
         //【1】 准备数据
         try
         {
             $user = User::instance();
 
+            $startRowNo    = 2;    //有效数据的开始行
+            $colMaxNum     = 6;    //总列表
+            $userNameIndex = 0;
+            $nameIndex     = 1;
+            $phoneIndex    = 2;
+            $emailIndex    = 3;
+            $sexIndex      = 4;
+            $companyIndex  = 5;
+
+            //钉钉导入
+            if ($type == NO)
+            {
+                $startRowNo   = 4;
+                $colMaxNum    = 14;
+                $emailIndex   = 7;
+                $companyIndex = 3;
+            }
+
             //1.0 读取数据
-            $rows      = $user->ReadFile($sourceFile);
+            $rows      = $user->ReadFile($sourceFile, $startRowNo, $colMaxNum);
             $total     = count($rows);             //总共多少条
-            $startPCol = 6 + 1;                    //日志从哪一列追加（有效字段为 6 个）
+            $startPCol = $colMaxNum + 1;           //日志从哪一列追加（有效字段+1）
+
+            //对获取的原始数据进行预处理
+            if($rows)
+            {
+                $rows = array_map(function ($item) use ($type, $userNameIndex, $phoneIndex){
+
+                    //钉钉导入需要自动追加d前缀
+                    if(NO == $type && $item[$userNameIndex])
+                    {
+                        $item[$userNameIndex] = dingtalk_name($item[$userNameIndex]);
+                    }
+
+                    if($item[$phoneIndex])
+                    {
+                        if(0 === strncmp($item[$phoneIndex], '+86-', 4))
+                        {
+                            $item[$phoneIndex] = substr($item[$phoneIndex], 4);
+                        }
+                    }
+
+                    return $item;
+                } ,$rows);
+            }
 
             //2.1 标记不合法的数据
-            $errArray = $user->CheckValue($rows);
+            $errArray = $user->CheckValue($rows, $startRowNo,
+                $userNameIndex, $nameIndex, $phoneIndex, $emailIndex, $sexIndex, $companyIndex);
 
             //2.2 删除空行的错误标记
             $total -= count($errArray['errNone']); //空行不计入总数
-            if ($total > 1000)
+            if ($total > 5000)
             {
                 self::$_error_code = \EC::PARAM_ERROR;
-                self::$_error_msg  = '每次不能超过 1000 条';
+                self::$_error_msg  = '每次不能超过 5000 条';
 
                 return false;
             }
 
             //2.3 删除重复，不合法的数据
-            $user->DeleteErrData($rows, $errArray);
+            $user->DeleteErrData($rows, $startRowNo, $errArray);
         }
         catch (\Throwable $e)
         {
@@ -780,7 +857,8 @@ class UserLogic extends BaseLogic
 
         //【2】 入库
         //3.0 将正确的文件入库,并记录保存失败的
-        $errDB = $this->ImportData($rows);
+        $errDB = $this->ImportData($rows, $startRowNo,
+                $userNameIndex, $nameIndex, $phoneIndex, $emailIndex, $sexIndex, $companyIndex);
         if (false === $errDB)
         {
             return false;
@@ -795,11 +873,19 @@ class UserLogic extends BaseLogic
             $errArray = array_merge($errArray, $errDB);
 
             //5.1 生成报表
-            $reportFile = $user->BatchReport($sourceFile, $errArray, $startPCol);
+            $reportFile = $user->BatchReport($sourceFile, $errArray, $startRowNo, $startPCol);
 
             //6.0 返回结果
             $rptFile = guid();
-            Cache::set(CACHE_UPLOAD_FILE . $rptFile, $reportFile, CACHE_TIME_SQL);
+            Cache::set(CACHE_UPLOAD_FILE . $rptFile, $reportFile, CACHE_TIME_SQL_DAY);
+
+            //添加到日志备注中，以实现重复下载
+            if (is_file($reportFile))
+            {
+                global $g_logs_comment;
+                $g_logs_comment = '24小时内有效（复制地址在浏览器直接打开）：' . Request::domain() .
+                    '/api/user/user_manage/batch_report?check=2&fid=' . $rptFile;
+            }
 
             $errAll = [];
             foreach ($errArray as $key => $v)
@@ -825,6 +911,10 @@ class UserLogic extends BaseLogic
 
     /**
      * 批量导入-下载批量导入用户的结果报表
+     * @param string $fid
+     * @param int    $bCheck
+     *
+     * @return bool
      */
     public function GetReport(string $fid, $bCheck = YES)
     {
@@ -842,7 +932,7 @@ class UserLogic extends BaseLogic
             return true;
         }
 
-        Apache::Download($filePath, '导入报表.xls');
+        Apache::Download($filePath, date('Y-m-d H:i') .' 用户中心导入报表.' . pathinfo($filePath, PATHINFO_EXTENSION));
     }
 
     /***
@@ -850,9 +940,18 @@ class UserLogic extends BaseLogic
      *
      * @param array $rows
      *
+     * @param int   $startRowNo
+     * @param int   $userNameIndex
+     * @param int   $nameIndex
+     * @param int   $phoneIndex
+     * @param int   $emailIndex
+     * @param       $sexIndex
+     * @param int   $companyIndex
+     *
      * @return array|bool
      */
-    public function ImportData($rows)
+    public function ImportData($rows, int $startRowNo,
+        int $userNameIndex, int $nameIndex, int $phoneIndex, int $emailIndex, $sexIndex, int $companyIndex)
     {
         $errDB = $errDBNameDup = $errDBPhoneDup = $errDBEmailDup = $errDBOther = [];
 
@@ -885,12 +984,12 @@ class UserLogic extends BaseLogic
             {
                 foreach ($sliceRows as $rowNum => $row)
                 {
-                    $name     = $row[0];
-                    $fullName = $row[1];
-                    $phone    = $row[2];
-                    $email    = $row[3];
-                    $sex      = $row[4];
-                    $company  = $row[5];
+                    $name     = $row[$userNameIndex];
+                    $fullName = $row[$nameIndex];
+                    $phone    = $row[$phoneIndex];
+                    $email    = $row[$emailIndex];
+                    $sex      = $row[$sexIndex];
+                    $company  = $row[$companyIndex];
 
                     try
                     {
@@ -899,18 +998,18 @@ class UserLogic extends BaseLogic
                             $break = false;
                             if (($phone != '') && $userAuth->CheckExist_Phone($phone))
                             {
-                                $errDBPhoneDup[] = $rowNum + 2;
+                                $errDBPhoneDup[] = $rowNum + $startRowNo;
                                 $break           = true;
                             }
                             if (($email != '') && $userAuth->CheckExist_Email($email))
                             {
-                                $errDBEmailDup[] = $rowNum + 2;
+                                $errDBEmailDup[] = $rowNum + $startRowNo;
                                 $break           = true;
                             }
                             //检查用户名,手机号,邮箱是否存在
                             if ($user->CheckExist($name))
                             {
-                                $errDBNameDup[] = $rowNum + 2;
+                                $errDBNameDup[] = $rowNum + $startRowNo;
                                 $break          = true;
                             }
                             if ($break)
@@ -920,7 +1019,7 @@ class UserLogic extends BaseLogic
                             $importNum++;
 
                             //写入数据
-                            $userAuth->Add($name, $name . DEF_USER_PWD, $phone, $email);
+                            $userAuth->Add($name, DEF_USER_PWD, $phone, $email);
                             if ($name != USER_NAME_ADMIN)
                             {
                                 //2.0 设置角色为普通用户
@@ -934,19 +1033,19 @@ class UserLogic extends BaseLogic
                     {
                         if (strpos($e->getMessage(), $name))
                         {
-                            $errDBNameDup[] = $rowNum + 2;
+                            $errDBNameDup[] = $rowNum + $startRowNo;
                         }
                         else if (strpos($e->getMessage(), $phone))
                         {
-                            $errDBPhoneDup[] = $rowNum + 2;
+                            $errDBPhoneDup[] = $rowNum + $startRowNo;
                         }
                         else if (strpos($e->getMessage(), $email))
                         {
-                            $errDBEmailDup[] = $rowNum + 2;
+                            $errDBEmailDup[] = $rowNum + $startRowNo;
                         }
                         else
                         {
-                            $errDBOther[] = $rowNum + 2;
+                            $errDBOther[] = $rowNum + $startRowNo;
                         }
                     }
                 }
@@ -967,7 +1066,9 @@ class UserLogic extends BaseLogic
         }
 
         //统计信息
-
+        if ($importNum > 0)
+        {
+        }
 
         $errDB['errDBNameDup']  = $errDBNameDup;
         $errDB['errDBPhoneDup'] = $errDBPhoneDup;

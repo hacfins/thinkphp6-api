@@ -55,7 +55,15 @@ class CSSO
                     if (!$bLocalIp)
                     {
                         //白名单中
-                        $except = in_array($sorIp, yaconf('auth.exclude_ips'));
+                        $except = false;
+                        foreach (yaconf('auth.exclude_ips') as $netWork)
+                        {
+                            if(ip_in_network($sorIp, $netWork))
+                            {
+                                $except = true;
+                                break;
+                            }
+                        }
                         if (!$except)
                         {
                             $ipInfo = get_ip_info();

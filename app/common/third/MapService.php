@@ -151,7 +151,8 @@ class MapService
             if($bLocalIp)
                 $internetIp = 'myip';
 
-            $requestAPi = "http://ip.taobao.com/service/getIpInfo.php?ip=" . $internetIp;
+            //$requestAPi = "http://ip.taobao.com/service/getIpInfo.php?ip=" . $internetIp;
+            $requestAPi = "http://ip.taobao.com/outGetIpInfo?accessKey=alibaba-inc&ip=" . $internetIp;
             $opts       = array(
                 'http' => array(
                     'method'  => 'GET',

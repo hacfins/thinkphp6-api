@@ -38,7 +38,7 @@ class Application extends App
 
             $this->request
                 ->setPathinfo($pathinfo)
-                ->withInput($GLOBALS['HTTP_RAW_REQUEST_DATA']);
+                ->withInput($GLOBALS['HTTP_RAW_POST_DATA']);
 
             while (ob_get_level() > 1) {
                 ob_end_clean();
@@ -62,7 +62,11 @@ class Application extends App
                 WorkerHttp::header($name . (!is_null($val) ? ':' . $val : ''));
             }
 
-            $connection->send($content);
+            if (strtolower($_SERVER['HTTP_CONNECTION']) === "keep-alive") {
+                $connection->send($content);
+            } else {
+                $connection->close($content);
+            }
         } catch (HttpException | \Exception | \Throwable $e) {
             $this->exception($connection, $e);
         }
@@ -79,7 +83,7 @@ class Application extends App
 
     protected function httpResponseCode($code = 200)
     {
-        WorkerHttp::header('HTTP/1.1', true, $code);
+        WorkerHttp::responseCode($code);
     }
 
     protected function exception($connection, $e)

@@ -49,7 +49,7 @@ class AuthController extends BaseController implements IReflectionDef
             return $this->R();
         }
 
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_id',
                 null,
@@ -69,12 +69,8 @@ class AuthController extends BaseController implements IReflectionDef
                 'length:1,32'
             ],
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new AuthLogic())->SetRules(self::$_input['role_id'], self::$_input['rules'], self::$_input['module']);
+        (new AuthLogic())->SetRules($param['role_id'], $param['rules'], $param['module']);
 
         return $this->R();
     }
@@ -89,7 +85,7 @@ class AuthController extends BaseController implements IReflectionDef
             return $this->R();
         }
 
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'role_id',
                 null,
@@ -115,13 +111,9 @@ class AuthController extends BaseController implements IReflectionDef
                 'in:' . YES . ',' . NO
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        $res = (new AuthLogic())->GetList(self::WHILE_LIST, self::$_input['role_id'], self::$_input['module'],
-            self::$_input['order_field'], self::$_input['is_asc']);
+        $res = (new AuthLogic())->GetList(self::WHILE_LIST, $param['role_id'], $param['module'],
+            $param['order_field'], $param['is_asc']);
         if ($res)
             return $this->R(null, null, $res);
 

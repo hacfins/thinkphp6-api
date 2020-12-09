@@ -48,7 +48,7 @@ class AuthController extends BaseController
     public function Active()
     {
         //**数据接收**
-        $vali = $this->I([
+        $param = $this->I([
             [
                 'code',
                 null,
@@ -62,12 +62,8 @@ class AuthController extends BaseController
                 'require|length:4,32'
             ]
         ]);
-        if ($vali !== true)
-        {
-            return $this->R(\EC::PARAM_ERROR, null, $vali);
-        }
 
-        (new ProductLogic())::Active(self::$_input['code'], self::$_input['register']);
+        (new ProductLogic())::Active($param['code'], $param['register']);
 
         //**数据返回**
         return $this->R();

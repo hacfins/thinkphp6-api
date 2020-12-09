@@ -118,27 +118,6 @@ class UserAuth extends Base
     }
 
     /**
-     * 软删除
-     *
-     * @param array $user_names 用户名
-     *
-     * @return int
-     */
-    public function Dels(array $user_names)
-    {
-        //同步缓存
-        foreach ($user_names as $user_name)
-        {
-            $this->Cache_Rm($user_name);
-            $this->Cache_Rm($user_name . CACHE_WITHTRASHED);
-        }
-
-        return self::destroy(function ($query) use ($user_names){
-            $query->where('user_name', 'IN', $user_names);
-        });
-    }
-
-    /**
      * 密码加密
      *
      * @param string $pwd 密码
