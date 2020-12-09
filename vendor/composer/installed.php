@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '445940f9d39e3f72b3ca7ce0810415bb5edb6744',
+    'reference' => '35467543d7aea28ca5aa8c39d3439213b9ed842e',
     'name' => 'hacfins/thinkphp6-api',
   ),
   'versions' => 
@@ -99,7 +99,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '445940f9d39e3f72b3ca7ce0810415bb5edb6744',
+      'reference' => '35467543d7aea28ca5aa8c39d3439213b9ed842e',
     ),
     'league/flysystem' => 
     array (
@@ -208,6 +208,15 @@
       array (
       ),
       'reference' => '6374e7486d637cd7f8dfa2b8a2f4d5ab055110b4',
+    ),
+    'overtrue/pinyin' => 
+    array (
+      'pretty_version' => '4.0.6',
+      'version' => '4.0.6.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '9836dae1783bcf5934508a2abe32eca9ea5ee15d',
     ),
     'php-curl-class/php-curl-class' => 
     array (

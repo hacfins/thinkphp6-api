@@ -38,7 +38,8 @@
 
         "php-curl-class/php-curl-class": "^8.0",
         "zoujingli/wechat-developer": "^1.2",
-        "mingyoung/dingtalk": "^2.3.1"
+        "mingyoung/dingtalk": "^2.3.1",
+        "overtrue/pinyin": "^4.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.2",

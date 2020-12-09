@@ -82,6 +82,7 @@ class ComposerStaticInit69736ddebb94234f317f1e760ee2a724
         '75c79eb1b25749b05a47976f32b0d8a2' => __DIR__ . '/..' . '/markbaker/matrix/classes/src/operations/divideby.php',
         '6ab8ad87a734f276a6bcd5a0fe1289be' => __DIR__ . '/..' . '/markbaker/matrix/classes/src/operations/divideinto.php',
         '7798cd9241cccdc5fef3a7154fed2b6b' => __DIR__ . '/..' . '/mingyoung/dingtalk/src/helpers.php',
+        'dc1275c308c5b416beb314b6317daca2' => __DIR__ . '/..' . '/overtrue/pinyin/src/const.php',
         '1cfd2761b63b0a29ed23657ea394cb2d' => __DIR__ . '/..' . '/topthink/think-captcha/src/helper.php',
         'cc56288302d9df745d97c934d6a6e5f0' => __DIR__ . '/..' . '/topthink/think-queue/src/common.php',
     );
@@ -146,6 +147,7 @@ class ComposerStaticInit69736ddebb94234f317f1e760ee2a724
         ),
         'O' => 
         array (
+            'Overtrue\\Pinyin\\' => 16,
             'Overtrue\\Http\\' => 14,
         ),
         'M' => 
@@ -351,6 +353,10 @@ class ComposerStaticInit69736ddebb94234f317f1e760ee2a724
         'Phinx\\' => 
         array (
             0 => __DIR__ . '/..' . '/topthink/think-migration/phinx/src/Phinx',
+        ),
+        'Overtrue\\Pinyin\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/overtrue/pinyin/src',
         ),
         'Overtrue\\Http\\' => 
         array (
@@ -1168,6 +1174,11 @@ class ComposerStaticInit69736ddebb94234f317f1e760ee2a724
         'Overtrue\\Http\\Support\\Collection' => __DIR__ . '/..' . '/overtrue/http/src/Support/Collection.php',
         'Overtrue\\Http\\Traits\\HasHttpRequests' => __DIR__ . '/..' . '/overtrue/http/src/Traits/HasHttpRequests.php',
         'Overtrue\\Http\\Traits\\ResponseCastable' => __DIR__ . '/..' . '/overtrue/http/src/Traits/ResponseCastable.php',
+        'Overtrue\\Pinyin\\DictLoaderInterface' => __DIR__ . '/..' . '/overtrue/pinyin/src/DictLoaderInterface.php',
+        'Overtrue\\Pinyin\\FileDictLoader' => __DIR__ . '/..' . '/overtrue/pinyin/src/FileDictLoader.php',
+        'Overtrue\\Pinyin\\GeneratorFileDictLoader' => __DIR__ . '/..' . '/overtrue/pinyin/src/GeneratorFileDictLoader.php',
+        'Overtrue\\Pinyin\\MemoryFileDictLoader' => __DIR__ . '/..' . '/overtrue/pinyin/src/MemoryFileDictLoader.php',
+        'Overtrue\\Pinyin\\Pinyin' => __DIR__ . '/..' . '/overtrue/pinyin/src/Pinyin.php',
         'Phinx\\Db\\Adapter\\AdapterFactory' => __DIR__ . '/..' . '/topthink/think-migration/phinx/src/Phinx/Db/Adapter/AdapterFactory.php',
         'Phinx\\Db\\Adapter\\AdapterInterface' => __DIR__ . '/..' . '/topthink/think-migration/phinx/src/Phinx/Db/Adapter/AdapterInterface.php',
         'Phinx\\Db\\Adapter\\AdapterWrapper' => __DIR__ . '/..' . '/topthink/think-migration/phinx/src/Phinx/Db/Adapter/AdapterWrapper.php',
@@ -1944,6 +1955,7 @@ class ComposerStaticInit69736ddebb94234f317f1e760ee2a724
         'app\\api\\logic\\UserLogLogic' => __DIR__ . '/../..' . '/app/api/logic/UserLogLogic.php',
         'app\\api\\logic\\UserLogic' => __DIR__ . '/../..' . '/app/api/logic/UserLogic.php',
         'app\\api\\logic\\UserLoginLogic' => __DIR__ . '/../..' . '/app/api/logic/UserLoginLogic.php',
+        'app\\api\\logic\\UserOauthLoginLogic' => __DIR__ . '/../..' . '/app/api/logic/UserOauthLoginLogic.php',
         'app\\api\\logic\\UserRoleLogic' => __DIR__ . '/../..' . '/app/api/logic/UserRoleLogic.php',
         'app\\api\\logic\\UserSSOLogic' => __DIR__ . '/../..' . '/app/api/logic/UserSSOLogic.php',
         'app\\api\\logic\\sns\\DtSns' => __DIR__ . '/../..' . '/app/api/logic/sns/DtSns.php',
