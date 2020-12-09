@@ -174,6 +174,18 @@ function b2s($str)
     return join('', $arr);
 }
 
+/**
+ * 获取中文对应的英文的首字符字符串
+ *
+ * @param string $strZh 中文字符串
+ *
+ * @return string
+ */
+function abbr(string $strZh)
+{
+    $pinYin = new \Overtrue\Pinyin\Pinyin();
+    return $pinYin->abbr($strZh);
+}
 
 // +----------------------------------------------------------------------
 // | 时间
@@ -1000,6 +1012,110 @@ function sql_map_region(array &$map, string $filedName, $min, $max)
     }
 }
 
+if (!function_exists('soar')) {
+
+    function soar()
+    {
+        return \think\Facade::make(Soar::class, [config('soar')]);
+    }
+}
+
+/**
+ * SQL 评分
+ */
+if (!function_exists('soar_score')) {
+    function soar_score($sql = null)
+    {
+        return null === $sql ? soar()->score(str_replace('`', '', Db::getLastSql())) :
+            soar()->score(str_replace('`', '', $sql));
+    }
+}
+
+/**
+ * explain 信息解读
+ */
+if (!function_exists('soar_md_explain')) {
+    function soar_md_explain($sql = null)
+    {
+        return null === $sql ? soar()->mdExplain(str_replace('`', '', Db::getLastSql())) :
+            soar()->mdExplain(str_replace('`', '', $sql));
+    }
+}
+
+/**
+ * explain 信息解读
+ */
+if (!function_exists('soar_html_explain')) {
+    function soar_html_explain($sql = null)
+    {
+        return null === $sql ? soar()->htmlExplain(str_replace('`', '', Db::getLastSql())) :
+            soar()->htmlExplain(str_replace('`', '', $sql));
+    }
+}
+
+/**
+ * 语法检查
+ */
+if (!function_exists('soar_syntax_check')) {
+    function soar_syntax_check($sql = null)
+    {
+        return null === $sql ? soar()->syntaxCheck(str_replace('`', '', Db::getLastSql())) :
+            soar()->syntaxCheck(str_replace('`', '', $sql));
+    }
+}
+
+/**
+ * SQL 指纹
+ */
+if (!function_exists('soar_finger_print')) {
+    function soar_finger_print($sql = null)
+    {
+        return null === $sql ? soar()->fingerPrint(str_replace('`', '', Db::getLastSql())) :
+            soar()->fingerPrint(str_replace('`', '', $sql));
+    }
+}
+
+/**
+ * SQL 美化
+ */
+if (!function_exists('soar_pretty')) {
+    function soar_pretty($sql = null)
+    {
+        return null === $sql ? soar()->pretty(str_replace('`', '', Db::getLastSql())) :
+            soar()->pretty(str_replace('`', '', $sql));
+    }
+}
+
+/**
+ * markdown 转化为 html
+ */
+if (!function_exists('soar_md2html')) {
+    function soar_md2html($markdown)
+    {
+        return  soar()->md2html($markdown);
+    }
+}
+
+/**
+ * soar 帮助
+ */
+if (!function_exists('soar_exec')) {
+    function soar_exec($command)
+    {
+        return soar()->exec($command);
+    }
+}
+
+/**
+ * 执行任意 soar 命令
+ */
+if (!function_exists('soar_help')) {
+    function soar_help()
+    {
+        return soar()->help();
+    }
+}
+
 
 // +----------------------------------------------------------------------
 // | 表单验证
@@ -1058,7 +1174,7 @@ function validate_email($email)
  */
 function validate_phone($tel)
 {
-    if (!(preg_match('/^1[3,4,5,7,8,9]{1}[0-9]{9}$/', $tel)))
+    if (!(preg_match('/^1[3,4,5,6,7,8,9]{1}[0-9]{9}$/', $tel)))
     {
         return false;
     }
@@ -1073,7 +1189,7 @@ function validate_phone($tel)
  */
 function validate_telphone($tel)
 {
-    if (!(preg_match('/^1[3,4,5,7,8,9]{1}[0-9]{9}$/', $tel) || preg_match('/^(0[1-9]{2,3}-?)?[0-9]{7,8}$/', $tel)))
+    if (!(preg_match('/^1[3,4,5,6,7,8,9]{1}[0-9]{9}$/', $tel) || preg_match('/^(0[1-9]{2,3}-?)?[0-9]{7,8}$/', $tel)))
     {
         return false;
     }
@@ -1261,14 +1377,11 @@ function img_mogr(string $url, string $crop)
 function get_ip_info()
 {
     $ip     = Request::ip();
-    $ipInfo = Cache::get('ip_info' . $ip);
-    if (!$ipInfo)
+    $ipInfo = Cache::get('ip_info' . $ip, false);
+    if (false === $ipInfo)
     {
         $ipInfo = \app\common\third\MapService::GetIpInfo($ip);
-        if ($ipInfo)
-        {
-            Cache::set('ip_info' . $ip, $ipInfo, CACHE_TIME_SQL_DAY);
-        }
+        Cache::set('ip_info' . $ip, $ipInfo, CACHE_TIME_SQL_DAY);
     }
 
     return $ipInfo;

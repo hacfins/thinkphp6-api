@@ -4,7 +4,7 @@ namespace app\common\middleware;
 
 use app\api\controller\BaseController;
 use app\api\controller\traits\DataResponse;
-use app\api\logic\UserLoginLogic;
+use app\api\logic\UserOauthLoginLogic;
 use app\common\facade\Request;
 use think\facade\
 {
@@ -38,7 +38,7 @@ class CSSOClient
                 break;
             }
 
-            $userLogin = new UserLoginLogic();
+            $userLogin = new UserOauthLoginLogic();
 
             //未连接用户中心 || 共享的cookie被篡改
             if (!$sessionToken || ($sessionToken != $cookieToken))
