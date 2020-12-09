@@ -180,12 +180,19 @@ class CloudSSO
     public function getUserInfoEx(string $user_name, array $param = [], $bDirector = false)
     {
         if ($bDirector)
+        {
+            if(strlen($user_name) > 1000)
+                return $this->request_direct('POST', 'api/user/user/info_ex', ['user_name' => $user_name] + $param);
+
             return $this->request_direct('GET', 'api/user/user/info_ex', ['user_name' => $user_name] + $param);
+        }
+        else
+        {
+            if(strlen($user_name) > 1000)
+                return $this->request('POST', 'api/user/user/info_ex', ['user_name' => $user_name] + $param);
 
-        if(strlen($user_name) > 1000)
-            return $this->request('POST', 'api/user/user/info_ex', ['user_name' => $user_name] + $param);
-
-        return $this->request('GET', 'api/user/user/info_ex', ['user_name' => $user_name] + $param);
+            return $this->request('GET', 'api/user/user/info_ex', ['user_name' => $user_name] + $param);
+        }
     }
 
     /**
