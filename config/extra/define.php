@@ -185,7 +185,7 @@ define('Cookie_SSO_UTOKEN', 'a_c_utoken'); //share cookie - sso
 // |  产品注册，不能修改!!!
 // +--------------------------------------------------------------------------
 define('AUTH_PRODUCT_NAME', 'hc_common');
-define('AUTH_PRODUCT_VERSION', '1.0.2');
+define('AUTH_PRODUCT_VERSION', '2.0.1');
 
 
 // +--------------------------------------------------------------------------
