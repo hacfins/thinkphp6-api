@@ -187,6 +187,30 @@ function abbr(string $strZh)
     return $pinYin->abbr($strZh);
 }
 
+/**
+ * 截取富文本中的纯文本
+ *
+ * @param string $htmlStr 富文本
+ * @param int    $num     截取的个数
+ *
+ * @return string
+ */
+function html2text(string $htmlStr, int $num = 200)
+{
+    if ($htmlStr)
+    {
+        //把一些预定义的HTML实体转换为字符
+        $htmlStr = htmlspecialchars_decode($htmlStr);
+
+        //函数剥去字符串中的 HTML、XML 以及 PHP 的标签,获取纯文本内容
+        $htmlStr = strip_tags($htmlStr);
+        //将空格替换成空
+        $htmlStr = str_replace(' ', '', $htmlStr);
+    }
+
+    return mb_substr($htmlStr, 0, $num, 'UTF-8');
+}
+
 // +----------------------------------------------------------------------
 // | 时间
 // +----------------------------------------------------------------------
