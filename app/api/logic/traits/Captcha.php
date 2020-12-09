@@ -3,7 +3,7 @@ namespace app\api\logic\traits;
 
 use app\api\model\
 {
-    common\Verify
+    common\Verify, rbac\User, rbac\UserAuth
 };
 
 /*
@@ -75,6 +75,8 @@ trait Captcha
                     $type = SMS_MODIFY_PHONE;
                 else if ($type == SESSIONID_VERIFY_FINDPWD)
                     $type = SMS_FINDPWD_PHONE;
+                else if($type == SESSIONID_VERIFY_LOGIN)
+                    $type = SMS_LOGIN_PHONE;
 
                 $status = send_sms($type, $key, [$code]);
                 if($status->Code != 'OK')
@@ -87,7 +89,7 @@ trait Captcha
             else if(validate_email($key))
             {
                 //找回密码，需要判断账户相关信息
-                if($type == SESSIONID_VERIFY_FINDPWD)
+                if($type == SESSIONID_VERIFY_FINDPWD || $type == SESSIONID_VERIFY_LOGIN)
                 {
                     $rtn = $this->CheckUserExist($key, false);
                     if(!$rtn)
@@ -141,6 +143,8 @@ EOF;
                     $emailTitle .= '修改邮箱';
                 else if($type == SESSIONID_VERIFY_FINDPWD)
                     $emailTitle .= '找回密码';
+                else if($type == SESSIONID_VERIFY_LOGIN)
+                    $emailTitle .= '邮箱登录';
 
                 return send_email($smtp, $key, $emailTitle, $body);
             }
@@ -154,18 +158,72 @@ EOF;
     }
 
     /**
+     * 检测账户是否可用
+     *
+     * @param string $key      手机号|邮箱
+     * @param bool   $bIsPhone 是否是手机号
+     *
+     * @return bool
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    private function CheckUserExist(string $key, bool $bIsPhone=true)
+    {
+        if ($bIsPhone)
+        {
+            $userName = UserAuth::instance()->CheckExist_Phone($key);
+            if (!$userName)
+            {
+                static::$_error_code = \EC::USER_PHONE_NOTEXIST_ERROR;
+
+                return false;
+            }
+        }
+        else
+        {
+            $userName = UserAuth::instance()->CheckExist_Email($key);
+            if (!$userName)
+            {
+                static::$_error_code = \EC::USER_EMAIL_NOT_EXIST_ERROR;
+
+                return false;
+            }
+        }
+
+        $info = User::instance()->GetInfo($userName);
+        if (!$info)
+        {
+            static::$_error_code = \EC::USER_PHONE_NOTEXIST_ERROR;
+
+            return false;
+        }
+
+        if ($info['status'] == USER_STATUS_DISABLED)
+        {
+            static::$_error_code = \EC::USER_DISABLE_ERROR;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * 验证校验码是否正确
      *
+     * @param string $key
+     * @param int    $type 校验码类型
      * @param string $code 用户校验码
-     * @param string $type 校验码类型
+     * @param bool   $delSession
+     * @param bool   $bCheck
      *
      * @return bool 用户校验码是否正确
      */
     public function CheckVerify(string $key, $type=SESSIONID_VERIFY_REGISTER,  string $code='', bool $delSession = false,
         bool $bCheck=false)
     {
-        $SwitchInfo = $this->GetSwitch();
-        $check = $SwitchInfo['check'] ?? YES;
+        $check = YES;
         if ($check == NO && $bCheck === false)
         {
             return true;

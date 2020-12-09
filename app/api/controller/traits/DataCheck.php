@@ -179,7 +179,6 @@ trait DataCheck
 
             }
 
-            $params = $params;
             if ($toVali)
             {
                 //当参数校验有误时，会抛出异常

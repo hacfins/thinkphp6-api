@@ -82,13 +82,16 @@ class OAuthClient extends Client
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function redirect($url = null)
+    public function redirect($url = null, $state=null)
     {
         $query = [
             'appid' => $this->credential['client_id'],
             'response_type' => 'code',
             'scope' => $this->credential['scope'],
-            'state' => $this->makeState(),
+            //Todo: Hacfin
+            //新增$state传入参数
+            'state' => $state ? $state : $this->makeState(),
+            //'state' => $this->makeState(),
             'redirect_uri' => $url ?: $this->getRedirectUrl(),
         ];
 
@@ -104,9 +107,11 @@ class OAuthClient extends Client
      */
     public function user()
     {
-        if (!$this->hasValidState($this->app['request']->get('state'))) {
+        //Todo: Hacfin
+        //屏蔽校验代码
+        /*if (!$this->hasValidState($this->app['request']->get('state'))) {
             throw new InvalidStateException();
-        }
+        }*/
 
         $data = [
             'tmp_auth_code' => $this->app['request']->get('code'),

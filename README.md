@@ -176,8 +176,24 @@ public function joins(array $joins)
  }
 ```
 
-### 5.4 framework
-#### 5.4.1 SessionInit
+###3.4 dingtalk
+修改了 vendor/mingyoung/dingtalk/src/Auth/OAuthClient.php
+```php
+//Todo: Hacfin
+//新增$state传入参数
+'state' => $state ? $state : $this->makeState(),
+```
+
+```php
+//Todo: Hacfin
+//屏蔽校验代码
+/*if (!$this->hasValidState($this->app['request']->get('state'))) {
+    throw new InvalidStateException();
+}*/
+```
+
+### 5.10 framework
+#### 5.10.1 SessionInit
 修改了 vendor/topthink/framework/src/think/middleware/SessionInit.php
 ```php
 //Todo: Hacfin

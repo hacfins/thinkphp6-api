@@ -780,14 +780,15 @@ class User extends Base
             }
 
             //设置属性，防止null
+            //解决wps失败的问题
             $properties = $excelObj->getProperties();
             if(!$properties->getCreator())
             {
-                $properties->setCreator("华科飞扬");
+                $properties->setCreator("郎涯工作室");
             }
             if(!$properties->getLastModifiedBy())
             {
-                $properties->setLastModifiedBy("华科飞扬");
+                $properties->setLastModifiedBy("郎涯工作室");
             }
             $excelObj->setProperties($properties);
             
