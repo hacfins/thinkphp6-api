@@ -24,7 +24,7 @@ class SystemMonitor
         $str    = trim($str[0]);
         $min    = $str / 60;
         $hours  = $min / 60;
-        $days   = $hours / 24;
+        $days   = (int)($hours / 24);
         $hours  = $hours % 24;
         $min    = $min % 60;
 
