@@ -152,6 +152,9 @@ define('CACHE_TIME_SQL_MINUTE', 60);                    //sql查询缓存时间 
 define('CACHE_TIME_SQL_LONG', 7200);                    //缓存时间 - 2小时
 define('CACHE_TIME_SQL_DAY', 86400);                    //缓存时间 - 24小时
 
+//-系统信息
+define('CACHE_MONITOR_DISK', 'mdisk:'); //磁盘信息
+define('CACHE_MONITOR_DISK_TIME', 'mdiskt:'); //磁盘时间
 
 // +--------------------------------------------------------------------------
 // |  Session Id
